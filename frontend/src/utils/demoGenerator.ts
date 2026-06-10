@@ -1,19 +1,19 @@
 import type { Alert, AlertType } from '~/types/alert'
 
 const TYPES: { type: AlertType; weight: number }[] = [
-  { type: 'RR Lyrae', weight: 30 },
-  { type: 'Cepheid', weight: 20 },
-  { type: 'Mira', weight: 15 },
-  { type: 'LPV', weight: 5 },
-  { type: 'AGN', weight: 10 },
-  { type: 'QSO', weight: 3 },
-  { type: 'SN Ia', weight: 5 },
-  { type: 'SN Ib', weight: 2 },
-  { type: 'SN Ic', weight: 2 },
-  { type: 'SN II', weight: 5 },
-  { type: 'Kilonova', weight: 1 },
+  { type: 'RR Lyrae', weight: 300 },
+  { type: 'AGN', weight: 200 },
+  { type: 'QSO', weight: 50 },
+  { type: 'Mira', weight: 150 },
+  { type: 'LPV', weight: 50 },
+  { type: 'SN Ia', weight: 60 },
+  { type: 'Cepheid', weight: 50 },
+  { type: 'SN II', weight: 45 },
+  { type: 'SN Ib', weight: 8 },
+  { type: 'SN Ic', weight: 12 },
   { type: 'TDE', weight: 1 },
-  { type: 'Unknown', weight: 1 },
+  { type: 'Kilonova', weight: 0.5 },
+  { type: 'Unknown', weight: 73.5 },
 ]
 
 const totalWeight = TYPES.reduce((s, t) => s + t.weight, 0)
@@ -36,7 +36,7 @@ function randomMagnitude(): number {
   const u = Math.random()
   const sigma = 2
   const mu = 16
-  const mag = mu + sigma * (Math.sqrt(-2 * Math.log(u > 0 ? u : 0.001)) * Math.cos(2 * Math.PI * Math.random()))
+  const mag = mu + sigma * (Math.sqrt(-2 * Math.log(Math.max(u, 0.001))) * Math.cos(2 * Math.PI * Math.random()))
   return Math.max(12, Math.min(22, mag))
 }
 

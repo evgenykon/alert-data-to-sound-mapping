@@ -171,21 +171,35 @@ Map<alertId, AlertState> {
 
 - **RA**: uniform 0–360°
 - **Dec**: `acos(2·random - 1) - 90` (равномерное распределение по небесной сфере)
-- **Type**: взвешенное распределение
-  - RR Lyrae: 30%
-  - Cepheid: 20%
-  - Mira/LPV: 20%
-  - AGN: 10%
-  - SN Ia/Ib/Ic: 10%
-  - SN II: 5%
-  - Kilonova: 1%
-  - TDE: 1%
-  - Unknown: 3%
+- **Type**: взвешенное распределение на основе LSST Science Book + ZTF
+
+| Тип | Вес | Источник |
+|---|---|---|
+| RR Lyrae | 300 | LSST Science Book §8 — ~10M за 10 лет |
+| AGN | 200 | Ivezic+2019 — ~10M переменных AGN |
+| Mira / LPV | 200 | LSST — доминируют в Магеллановых Облаках |
+| SN Ia | 60 | Fremling+2020 ZTF BTS — 60% SNe |
+| Cepheid | 50 | LSST Science Book §8 |
+| SN II | 45 | Perley+2020 ZTF core-collapse rates |
+| SN Ib/Ic | 20 | Fremling+2020 stripped-envelope |
+| TDE | 1 | van Velzen+2021 — ~1 per 5-10 nights |
+| Kilonova | 0.5 | Andreoni+2022 — <1 в месяц |
+| Bogus / artifact | 73.5 | LSST — ~7% false positives |
+
 - **Magnitude**: 12–22 (нормальное распределение, μ=16, σ=2)
 - **Redshift**: 0.0–1.0
 - **riseTime**: нормальное (μ=0.5, σ=0.3)
 - **score**: beta-распределение (α=2, β=5) — большинство низкие
 - **Интервал**: пуассоновский процесс, λ = 2s + случайные burst'ы (5–15 алертов за 1s)
+
+**Источники:**
+- LSST Science Book v2.0 — [arXiv:0912.0201](https://arxiv.org/abs/0912.0201)
+- Ivezic et al. 2019, ApJ 873, 111 — [ADS](https://ui.adsabs.harvard.edu/abs/2019ApJ...873..111I)
+- Bellm et al. 2019, PASP 131, 018002 — [ADS](https://ui.adsabs.harvard.edu/abs/2019PASP..131a8002B)
+- Fremling et al. 2020, ApJ 895, 32 — [ADS](https://ui.adsabs.harvard.edu/abs/2020ApJ...895...32F)
+- Perley et al. 2020, MNRAS 499, 3040 — [ADS](https://ui.adsabs.harvard.edu/abs/2020MNRAS.499.3040P)
+- van Velzen et al. 2021, ApJ 908, 4 — [ADS](https://ui.adsabs.harvard.edu/abs/2021ApJ...908....4V)
+- Andreoni et al. 2022, ApJ 930, 128 — [ADS](https://ui.adsabs.harvard.edu/abs/2022ApJ...930..128A)
 
 ## 7. UI—Компоненты (Vue + Nuxt + Tailwind)
 

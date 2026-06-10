@@ -2,19 +2,19 @@ import { broadcast } from './server.js'
 import type { Alert, AlertType } from './types.js'
 
 const TYPES: { type: AlertType; weight: number }[] = [
-  { type: 'RR Lyrae', weight: 30 },
-  { type: 'Cepheid', weight: 20 },
-  { type: 'Mira', weight: 15 },
-  { type: 'LPV', weight: 5 },
-  { type: 'AGN', weight: 10 },
-  { type: 'QSO', weight: 3 },
-  { type: 'SN Ia', weight: 5 },
-  { type: 'SN Ib', weight: 2 },
-  { type: 'SN Ic', weight: 2 },
-  { type: 'SN II', weight: 5 },
-  { type: 'Kilonova', weight: 1 },
+  { type: 'RR Lyrae', weight: 300 },
+  { type: 'AGN', weight: 200 },
+  { type: 'QSO', weight: 50 },
+  { type: 'Mira', weight: 150 },
+  { type: 'LPV', weight: 50 },
+  { type: 'SN Ia', weight: 60 },
+  { type: 'Cepheid', weight: 50 },
+  { type: 'SN II', weight: 45 },
+  { type: 'SN Ib', weight: 8 },
+  { type: 'SN Ic', weight: 12 },
   { type: 'TDE', weight: 1 },
-  { type: 'Unknown', weight: 1 },
+  { type: 'Kilonova', weight: 0.5 },
+  { type: 'Unknown', weight: 73.5 },
 ]
 
 const totalWeight = TYPES.reduce((s, t) => s + t.weight, 0)
@@ -51,9 +51,17 @@ function generateAlert(): Alert {
     type: randomType(),
     redshift: Math.random(),
     riseTime: Math.max(0.01, gaussianRandom(0.5, 0.3)),
-    score: Math.random(),
+    score: sampleBeta(2, 5),
     timestamp: Date.now() / 1000,
   }
+}
+
+function sampleBeta(alpha: number, beta: number): number {
+  const x = Math.random()
+  const y = Math.random()
+  const gammaA = -Math.log(1 - Math.pow(x, 1 / alpha))
+  const gammaB = -Math.log(1 - Math.pow(y, 1 / beta))
+  return gammaA / (gammaA + gammaB)
 }
 
 let interval: ReturnType<typeof setInterval> | null = null

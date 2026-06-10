@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "permission": {
+    "bash": {
+      "bun run src/index.ts*": "deny",
+      "bun --watch src/index.ts*": "deny",
+      "*": "allow"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    profiles:
+      - production
+
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+    environment:
+      NUXT_HOST: "0.0.0.0"
+      NUXT_PORT: "3001"
+    profiles:
+      - dev

@@ -1,11 +1,11 @@
 # Alert Data → Sound Mapping
 
-Браузерный сонификатор «живых» алертов Обсерватории им. Веры Рубин (LSST).
+A browser-based sonification tool for live alerts from the Vera C. Rubin Observatory (LSST).
 Web Audio API + Vue 3 + D3.js + Kafka.
 
-Превращает поток астрономических алертов в многоканальный пространственный звук в реальном времени. Учёный слышит космос: частота зависит от красного смещения, громкость — от мощности вспышки, тембр — от типа объекта, а панорама — от координат на небе.
+Transforms a stream of astronomical alerts into real-time multi-channel spatial audio. The user hears the cosmos: frequency depends on redshift, volume on flash brightness, timbre on object type, and panning on sky coordinates.
 
-## Архитектура
+## Architecture
 
 ```
 GitHub Pages (SPA)                    Hugging Face Space (Docker)
@@ -27,77 +27,77 @@ GitHub Pages (SPA)                    Hugging Face Space (Docker)
                                                     │
   ┌──────────────────┐                    ┌──────────┴──────────┐
   │   StarMap (D3)   │                    │  LSST Kafka         │
-  │   Aitoff proj.   │                    │  (или генератор     │
-  │   + tooltips     │                    │   если недоступен)  │
+  │   Aitoff proj.   │                    │  (or built-in       │
+  │   + tooltips     │                    │   generator)        │
   └──────────────────┘                    └─────────────────────┘
 ```
 
 ## Data-to-Sound Mapping
 
-| Астро-параметр | Audio-параметр | Преобразование |
+| Astronomical param | Audio param | Transformation |
 |---|---|---|
-| RA / Dec | `PannerNode.positionX/Y/Z` | Пространственная сцена неба |
-| Magnitude | `GainNode.gain` | Яркость → громкость (логарифм) |
-| Тип объекта | `OscillatorNode.type` | Sine=пульсар, Saw=сверхновая, Square=AGN |
-| Redshift (z) | `OscillatorNode.frequency` | `f = 220 × 2^(z+1)` (эффект Доплера) |
-| Время нарастания | `linearRampToValueAtTime` | Атака звука |
-| Длительность | Фиксированная 300ms | — |
+| RA / Dec | `PannerNode.positionX/Y/Z` | 3D sky scene, spatial audio |
+| Magnitude | `GainNode.gain` | Brightness → volume (log scale) |
+| Object type | `OscillatorNode.type` | Sine=pulsar, Saw=supernova, Square=AGN |
+| Redshift (z) | `OscillatorNode.frequency` | `f = 220 × 2^(z+1)` (Doppler shift) |
+| Rise time | `linearRampToValueAtTime` | Sound attack envelope |
+| Duration | Fixed 300ms | — |
 
-### Палитры звуков
+### Sound Palettes
 
-- **Scientific** — форма волны по типу объекта, частота по z
-- **Musical** — пентатоническая гамма, все синусы
-- **Xenomorphic** — агрессивные square-волны
-- **Minimal** — простые щелчки, постоянная высота
-- **Cinematic** — драматичные звуки с длинной атакой
+- **Scientific** — waveform by object type, pitch by redshift
+- **Musical** — pentatonic scale, all sine waves
+- **Xenomorphic** — harsh square waves, alien feel
+- **Minimal** — simple clicks, constant pitch
+- **Cinematic** — dramatic sounds with long attacks
 
-## Быстрый старт
+## Quick Start
 
 ```bash
-# Всё сразу (backend + frontend dev):
+# Everything at once (backend + frontend dev):
 make dev
 
-# Только backend:
+# Backend only:
 make dev-backend
 
-# Только frontend (dev с hot-reload):
+# Frontend only (dev with hot-reload):
 make dev-frontend
 
-# Production сборка:
+# Production build:
 make build
 make run
 ```
 
-### Открыть в браузере
+### Open in browser
 
-После `make dev`:
-- **Фронтенд**: http://localhost:3001/alert-data-to-sound-mapping/
+After `make dev`:
+- **Frontend**: http://localhost:3001/alert-data-to-sound-mapping/
 - **Backend WebSocket**: ws://localhost:3000
 
-## Структура проекта
+## Project Structure
 
 ```
 alert-data-to-sound-mapping/
 ├── frontend/                    # Vue 3 + Vite + Tailwind CSS 4
 │   ├── src/
-│   │   ├── components/          # Vue-компоненты
-│   │   │   ├── StarMap.vue          # D3.js Aitoff карта
+│   │   ├── components/          # Vue components
+│   │   │   ├── StarMap.vue           # D3.js Aitoff sky map
 │   │   │   ├── TransportControls.vue # Play, mode, event counter
-│   │   │   ├── StrategySelector.vue  # Стратегии сонификации
-│   │   │   ├── PaletteSelector.vue   # Выбор палитры звуков
-│   │   │   ├── ClassFilter.vue       # Фильтр по типам объектов
-│   │   │   ├── EventLog.vue          # Лог событий
-│   │   │   └── ConnectionStatus.vue  # Статус подключения
+│   │   │   ├── StrategySelector.vue  # Sonification strategies
+│   │   │   ├── PaletteSelector.vue   # Sound palette picker
+│   │   │   ├── ClassFilter.vue       # Filter by object type
+│   │   │   ├── EventLog.vue          # Event log panel
+│   │   │   └── ConnectionStatus.vue  # Connection status indicator
 │   │   ├── composables/         # Vue composables
-│   │   │   ├── useAudioEngine.ts     # Web Audio API
-│   │   │   ├── useAlertStore.ts      # Состояние алертов
-│   │   │   ├── useSonification.ts    # Логика маппинга
-│   │   │   └── useWebSocket.ts       # WS + demo fallback
+│   │   │   ├── useAudioEngine.ts     # Web Audio API core
+│   │   │   ├── useAlertStore.ts      # Alert state management
+│   │   │   ├── useSonification.ts    # Mapping & strategy logic
+│   │   │   └── useWebSocket.ts       # WS client + demo fallback
 │   │   ├── utils/
-│   │   │   ├── mapping.ts            # Astro → Audio params
-│   │   │   ├── projections.ts        # Aitoff projection
-│   │   │   ├── demoGenerator.ts      # Псевдо-алерты
-│   │   │   └── constellations.ts     # Определение созвездий
+│   │   │   ├── mapping.ts            # Astro → Audio param conversion
+│   │   │   ├── projections.ts        # Aitoff projection math
+│   │   │   ├── demoGenerator.ts      # Pseudo-alert generator
+│   │   │   └── constellations.ts     # Constellation lookup (IAU)
 │   │   ├── types/alert.ts
 │   │   ├── main.ts
 │   │   ├── App.vue
@@ -110,49 +110,49 @@ alert-data-to-sound-mapping/
 │   │   ├── index.ts             # Entry point
 │   │   ├── consumer.ts          # KafkaJS consumer
 │   │   ├── server.ts            # WebSocket server
-│   │   ├── generator.ts         # Demo-алерты
+│   │   ├── generator.ts         # Demo alert generator
 │   │   └── types.ts
 │   ├── Dockerfile
 │   └── package.json
 ├── docker-compose.yml           # Local dev stack
 ├── Makefile
-├── AGENTS.md                    # Правила проекта
-└── docs/plan.md                 # Архитектурный документ
+├── AGENTS.md                    # Project rules (Russian)
+└── docs/plan.md                 # Architecture document
 ```
 
-## Сервисы (Docker)
+## Services (Docker)
 
-| Сервис | Образ | Порт | Зависимости |
+| Service | Image | Port | Depends on |
 |---|---|---|---|
 | `backend` | `oven/bun` | 3000 | — |
 | `frontend-dev` | `node:24-alpine` | 3001 | backend |
 | `frontend` | nginx:alpine | 80 | backend |
 
-**Поток данных в dev:**
+**Data flow in dev mode:**
 ```
-backend (встроенный генератор) → WebSocket → frontend
+backend (built-in demo generator) → WebSocket → frontend
 ```
 
-## Стратегии сонификации
+## Sonification Strategies
 
-| Стратегия | Описание |
+| Strategy | Description |
 |---|---|
-| **Aggregate** | Группировка событий в кластеры → один композитный звук |
-| **Score Filter** | Только алерты с вероятностью > threshold |
-| **Sampling** | Каждый N-й алерт |
-| **Grains** | Каждый алерт = короткий гран (30ms), массив → текстура |
-| **Rate Limit** | Макс K звуков/сек, редкие события с приоритетом |
+| **Aggregate** | Groups nearby events into composite sounds |
+| **Score Filter** | Only events above configurable score threshold |
+| **Sampling** | Plays every Nth event |
+| **Grains** | Each event = short grain (30ms), dense texture |
+| **Rate Limit** | Max K sounds/sec, rare events get priority |
 
-## Деплой
+## Deployment
 
 ### Hugging Face Space
 
 ```bash
-# Настроить remote (один раз):
+# Configure remote (one time):
 make deploy-setup
 # → git remote add hf https://huggingface.co/spaces/<username>/<spacename>
 
-# Деплой:
+# Deploy:
 make deploy
 # → git push hf main
 ```
@@ -160,26 +160,26 @@ make deploy
 ### GitHub Pages
 
 ```bash
-make frontend    # сборка статики в frontend/dist
-# залить dist/ на GitHub Pages
+make frontend    # builds static site to frontend/dist
+# deploy dist/ to GitHub Pages
 ```
 
-Переменные окружения для LSST Kafka (задаются через Secrets в HF Space):
+Environment variables for LSST Kafka (set via Secrets in HF Space):
 - `KAFKA_BROKER`
 - `KAFKA_TOPIC`
 - `KAFKA_USER`
 - `KAFKA_PASS`
 
-## Технологии
+## Tech Stack
 
-| Слой | Технология |
+| Layer | Technology |
 |---|---|
-| Фронтенд | Vue 3 + Vite + TypeScript |
-| Стили | Tailwind CSS 4 |
-| Карта неба | D3.js (Aitoff) |
-| Аудио | Web Audio API |
-| Бэкенд | Bun + TypeScript |
-| Kafka | KafkaJS |
+| Frontend | Vue 3 + Vite + TypeScript |
+| Styling | Tailwind CSS 4 |
+| Sky Map | D3.js (Aitoff projection) |
+| Audio | Web Audio API |
+| Backend | Bun + TypeScript |
+| Kafka client | KafkaJS |
 | WebSocket | ws |
-| Хостинг | GitHub Pages + HF Spaces |
+| Hosting | GitHub Pages + HF Spaces |
 | CI/CD | Docker + Makefile |

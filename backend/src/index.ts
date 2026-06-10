@@ -1,31 +1,30 @@
 import { startServer } from './server.js'
-import { startConsumer, stopConsumer } from './consumer.js'
-import { startGenerator } from './generator.js'
+import { startSource, stopSource } from './sourceManager.js'
+import type { AlertSourceType } from './types.js'
 
 const PORT = parseInt(process.env.PORT || '3000', 10)
 
 async function main() {
   startServer(PORT)
 
-  if (process.env.KAFKA_BROKER) {
-    const kafkaOk = await startConsumer()
-    if (!kafkaOk) {
-      console.log('Kafka unavailable, starting demo generator')
-      startGenerator()
-    }
-  } else {
-    console.log('No KAFKA_BROKER set, starting demo generator')
-    startGenerator()
+  const sourceType = (process.env.ALERT_SOURCE as AlertSourceType) || 'demo'
+
+  if (sourceType === 'kafka' && !process.env.KAFKA_BROKER) {
+    console.log('KAFKA_BROKER not set, falling back to demo source')
+    await startSource('demo')
+    return
   }
+
+  await startSource(sourceType)
 }
 
 process.on('SIGINT', async () => {
-  await stopConsumer()
+  stopSource()
   process.exit(0)
 })
 
 process.on('SIGTERM', async () => {
-  await stopConsumer()
+  stopSource()
   process.exit(0)
 })
 

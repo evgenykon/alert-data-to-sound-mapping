@@ -5,6 +5,12 @@ services:
       - "3000:3000"
     environment:
       PORT: "3000"
+      ALERT_SOURCE: "${ALERT_SOURCE:-demo}"
+      # For Kafka source:
+      # KAFKA_BROKER: "${KAFKA_BROKER}"
+      # KAFKA_TOPIC: "${KAFKA_TOPIC}"
+      # KAFKA_USER: "${KAFKA_USER}"
+      # KAFKA_PASS: "${KAFKA_PASS}"
 
   frontend:
     build: ./frontend
@@ -26,7 +32,6 @@ services:
     depends_on:
       - backend
     environment:
-      NUXT_HOST: "0.0.0.0"
-      NUXT_PORT: "3001"
+      VITE_WS_URL: "ws://backend:3000"
     profiles:
       - dev

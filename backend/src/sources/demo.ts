@@ -1,5 +1,4 @@
-import { broadcast } from './server.js'
-import type { Alert, AlertType } from './types.js'
+import type { Alert, AlertType, AlertSource } from '../types.js'
 
 const TYPES: { type: AlertType; weight: number }[] = [
   { type: 'RR Lyrae', weight: 300 },
@@ -39,12 +38,20 @@ function gaussianRandom(mean: number, std: number): number {
   return mean + std * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
 }
 
+function sampleBeta(alpha: number, beta: number): number {
+  const x = Math.random()
+  const y = Math.random()
+  const gammaA = -Math.log(1 - Math.pow(x, 1 / alpha))
+  const gammaB = -Math.log(1 - Math.pow(y, 1 / beta))
+  return gammaA / (gammaA + gammaB)
+}
+
 let counter = 0
 
 function generateAlert(): Alert {
   counter++
   return {
-    alertId: `sim-${Date.now()}-${counter}`,
+    alertId: `demo-${Date.now()}-${counter}`,
     ra: Math.random() * 360,
     dec: randomDec(),
     magnitude: Math.max(12, Math.min(22, gaussianRandom(16, 2))),
@@ -56,21 +63,12 @@ function generateAlert(): Alert {
   }
 }
 
-function sampleBeta(alpha: number, beta: number): number {
-  const x = Math.random()
-  const y = Math.random()
-  const gammaA = -Math.log(1 - Math.pow(x, 1 / alpha))
-  const gammaB = -Math.log(1 - Math.pow(y, 1 / beta))
-  return gammaA / (gammaA + gammaB)
-}
-
-let interval: ReturnType<typeof setInterval> | null = null
-
-export function startGenerator() {
-  console.log('Starting demo alert generator')
+export function createDemoSource(): AlertSource {
+  let timer: ReturnType<typeof setTimeout> | null = null
+  let onAlert: ((a: Alert) => void) | null = null
 
   function emit() {
-    broadcast(generateAlert())
+    if (onAlert) onAlert(generateAlert())
   }
 
   function schedule() {
@@ -82,15 +80,21 @@ export function startGenerator() {
       }
     }
     const delay = -Math.log(Math.random()) * 2000
-    interval = setTimeout(schedule, delay)
+    timer = setTimeout(schedule, delay)
   }
 
-  schedule()
-}
-
-export function stopGenerator() {
-  if (interval) {
-    clearInterval(interval)
-    interval = null
+  return {
+    type: 'demo',
+    start(cb) {
+      onAlert = cb
+      console.log('[DemoSource] started')
+      schedule()
+    },
+    stop() {
+      if (timer) clearTimeout(timer)
+      timer = null
+      onAlert = null
+      console.log('[DemoSource] stopped')
+    },
   }
 }

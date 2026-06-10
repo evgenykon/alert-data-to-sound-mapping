@@ -1,0 +1,49 @@
+import type { Alert, AlertSource, AlertSourceType } from './types.js'
+import { broadcast } from './server.js'
+
+let currentSource: AlertSource | null = null
+
+export async function startSource(type: AlertSourceType, customConfig?: Record<string, unknown>) {
+  stopSource()
+
+  async function emit(alert: Alert) {
+    broadcast(alert)
+  }
+
+  if (type === 'demo') {
+    const { createDemoSource } = await import('./sources/demo.js')
+    currentSource = createDemoSource()
+    currentSource.start(emit)
+  } else if (type === 'kafka') {
+    const { createKafkaSource } = await import('./sources/kafka.js')
+    const cfg = (customConfig || {}) as Record<string, string | undefined>
+    currentSource = createKafkaSource({
+      broker: cfg.broker as string || process.env.KAFKA_BROKER || 'localhost:9092',
+      topic: cfg.topic as string || process.env.KAFKA_TOPIC || 'lsst.alert',
+      user: cfg.user as string || process.env.KAFKA_USER,
+      pass: cfg.pass as string || process.env.KAFKA_PASS,
+    })
+    currentSource.start(emit)
+  } else if (type === 'fink') {
+    const { createFinkSource } = await import('./sources/fink.js')
+    const cfg = (customConfig || {}) as Record<string, number | undefined>
+    currentSource = createFinkSource({
+      pollIntervalMs: cfg.pollIntervalMs as number || 30000,
+      maxResults: cfg.maxResults as number || 10,
+    })
+    currentSource.start(emit)
+  } else {
+    console.error('Unknown source type:', type)
+  }
+}
+
+export function stopSource() {
+  if (currentSource) {
+    currentSource.stop()
+    currentSource = null
+  }
+}
+
+export function getSourceType(): AlertSourceType | null {
+  return currentSource?.type ?? null
+}

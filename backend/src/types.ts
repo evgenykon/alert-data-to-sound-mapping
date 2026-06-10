@@ -24,3 +24,12 @@ export interface Alert {
   score: number
   timestamp: number
 }
+
+export type AlertSourceType = 'demo' | 'kafka' | 'fink' | 'lasair'
+
+export interface AlertSource {
+  readonly type: AlertSourceType
+  start(onAlert: (alert: Alert) => void): void
+  stop(): void
+}
+

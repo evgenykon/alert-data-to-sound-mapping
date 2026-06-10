@@ -3,7 +3,7 @@ import { useSonification } from './useSonification'
 import { generateDemoAlert } from '~/utils/demoGenerator'
 import type { Alert, ConnectionStatus } from '~/types/alert'
 
-const WS_URL = import.meta.env.NUXT_PUBLIC_WS_URL || 'wss://evgenykon-alert-sound-mapping.hf.space'
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3000'
 const RECONNECT_INTERVAL = 1000
 const MAX_RETRIES = 3
 const TIMEOUT_MS = 5000

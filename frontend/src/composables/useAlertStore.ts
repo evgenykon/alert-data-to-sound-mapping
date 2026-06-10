@@ -1,15 +1,17 @@
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import type { Alert, AlertState } from '~/types/alert'
 
 const FADE_DURATION = 60_000
 const CLEANUP_INTERVAL = 100
-const LOG_KEEP = 600_000
+const logKeep = ref(600_000)
 
 const store = reactive({
   alerts: new Map<string, AlertState>(),
   recent: [] as AlertState[],
   hoveredId: null as string | null,
 })
+
+const clearKey = ref(0)
 
 function addAlert(alert: Alert) {
   const state: AlertState = {
@@ -23,9 +25,7 @@ function addAlert(alert: Alert) {
 
 function markDecaying(alertId: string) {
   const a = store.alerts.get(alertId)
-  if (a) {
-    a.status = 'decaying'
-  }
+  if (a) a.status = 'decaying'
 }
 
 function cleanup() {
@@ -38,7 +38,7 @@ function cleanup() {
       a.opacity = Math.max(0, 1 - (Date.now() - ts) / FADE_DURATION)
     }
   }
-  const logCutoff = Date.now() - LOG_KEEP
+  const logCutoff = Date.now() - logKeep.value
   for (let i = store.recent.length - 1; i >= 0; i--) {
     if (store.recent[i].timestamp * 1000 < logCutoff) {
       store.recent.splice(i, 1)
@@ -51,27 +51,24 @@ function startCleanup() {
   cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
 }
 function stopCleanup() {
-  if (cleanupTimer) {
-    clearInterval(cleanupTimer)
-    cleanupTimer = null
-  }
+  if (cleanupTimer) { clearInterval(cleanupTimer); cleanupTimer = null }
 }
 
 function reset() {
-  store.alerts.clear()
-  store.recent = []
+  store.alerts.clear(); store.recent = []; clearKey.value++
 }
 
 export function useAlertStore() {
   return {
     alerts: store.alerts,
-    recentAlerts: store.recent,
+    get recentAlerts() { return store.recent },
     get hoveredId() { return store.hoveredId },
+    clearKey,
+    logKeep,
+    setLogKeep: (s: number) => { logKeep.value = s * 1000 },
     addAlert,
     markDecaying,
     setHovered: (id: string | null) => { store.hoveredId = id },
-    startCleanup,
-    stopCleanup,
-    reset,
+    startCleanup, stopCleanup, reset,
   }
 }

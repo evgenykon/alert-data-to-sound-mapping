@@ -34,43 +34,56 @@ function randomDec(): number {
 
 function randomMagnitude(): number {
   const u = Math.random()
-  const sigma = 2
-  const mu = 16
-  const mag = mu + sigma * (Math.sqrt(-2 * Math.log(Math.max(u, 0.001))) * Math.cos(2 * Math.PI * Math.random()))
-  return Math.max(12, Math.min(22, mag))
-}
-
-let counter = 0
-
-export function generateDemoAlert(): Alert {
-  counter++
-  const mag = randomMagnitude()
-  const z = Math.random()
-  const score = sampleBeta(2, 5)
-
-  return {
-    alertId: `demo-${Date.now()}-${counter}`,
-    ra: Math.random() * 360,
-    dec: randomDec(),
-    magnitude: mag,
-    type: randomType(),
-    redshift: z,
-    riseTime: Math.max(0.01, gaussianRandom(0.5, 0.3)),
-    score,
-    timestamp: Date.now() / 1000,
-  }
-}
-
-function sampleBeta(alpha: number, beta: number): number {
-  const x = Math.random()
-  const y = Math.random()
-  const gammaA = -Math.log(1 - Math.pow(x, 1 / alpha))
-  const gammaB = -Math.log(1 - Math.pow(y, 1 / beta))
-  return gammaA / (gammaA + gammaB)
+  return Math.max(12, Math.min(22, 16 + 2 * (Math.sqrt(-2 * Math.log(Math.max(u, 0.001))) * Math.cos(2 * Math.PI * Math.random()))))
 }
 
 function gaussianRandom(mean: number, std: number): number {
   const u1 = Math.random()
   const u2 = Math.random()
   return mean + std * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
+}
+
+function sampleBeta(alpha: number, beta: number): number {
+  const x = Math.random()
+  return -Math.log(1 - Math.pow(x, 1 / alpha)) / (-Math.log(1 - Math.pow(x, 1 / alpha)) + -Math.log(1 - Math.pow(Math.random(), 1 / beta)))
+}
+
+let counter = 0
+
+export function generateDemoAlert(): Alert {
+  counter++
+  return {
+    alertId: `demo-${Date.now()}-${counter}`,
+    ra: Math.random() * 360,
+    dec: randomDec(),
+    magnitude: randomMagnitude(),
+    type: randomType(),
+    redshift: Math.random(),
+    riseTime: Math.max(0.01, gaussianRandom(0.5, 0.3)),
+    score: sampleBeta(2, 5),
+    timestamp: Date.now() / 1000,
+  }
+}
+
+function getInterval(rate: number): number {
+  if (rate <= 0) return -1
+  const targetInterval = 1000 / rate
+  const jitter = 0.3
+  return targetInterval * (1 - jitter + Math.random() * jitter * 2)
+}
+
+let currentRate = 0.5
+
+export function setDemoRate(rate: number) {
+  currentRate = rate
+}
+
+export function getDemoRate(): number {
+  return currentRate
+}
+
+export function generateDemoAlertWithRate(rate: number): { alert: Alert; intervalMs: number } | null {
+  const interval = getInterval(rate)
+  if (interval < 0) return null
+  return { alert: generateDemoAlert(), intervalMs: interval }
 }

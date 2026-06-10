@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useWebSocket } from '~/composables/useWebSocket'
 import { useSonification } from '~/composables/useSonification'
 import { useAlertStore } from '~/composables/useAlertStore'
+import { useBenchmark } from '~/composables/useBenchmark'
+import { downloadBenchmarkCSV } from '~/utils/benchmarkExport'
+import { setDemoRate } from '~/utils/demoGenerator'
 import type { AppMode } from '~/types/alert'
 
 const emit = defineEmits<{
@@ -13,9 +16,14 @@ const emit = defineEmits<{
 const ws = useWebSocket()
 const sonification = useSonification()
 const store = useAlertStore()
+const bm = useBenchmark()
 
 const isPlaying = ref(false)
 const mode = ref<AppMode>('demo')
+const rateVal = ref(0.5)
+
+const RATES = [0.5, 1, 5, 10, 50, 100, 200, 500]
+const hasSamples = computed(() => bm.sampleCount.value > 0)
 
 function togglePlay() {
   if (isPlaying.value) {
@@ -27,7 +35,9 @@ function togglePlay() {
 
 function start() {
   isPlaying.value = true
+  bm.startBenchmark()
   store.startCleanup()
+  setDemoRate(rateVal.value)
   if (mode.value === 'live') {
     ws.connect()
   } else {
@@ -37,8 +47,14 @@ function start() {
 
 function stop() {
   isPlaying.value = false
+  bm.stopBenchmark()
   ws.disconnect()
   store.stopCleanup()
+}
+
+function onRateChange(r: number) {
+  rateVal.value = r
+  setDemoRate(r)
 }
 </script>
 
@@ -61,11 +77,27 @@ function stop() {
       <option value="demo">Demo</option>
     </select>
 
+    <select
+      :value="rateVal"
+      class="bg-gray-800 text-sm px-2 py-1 rounded border border-gray-700"
+      @change="onRateChange(Number(($event.target as HTMLSelectElement).value))"
+    >
+      <option v-for="r in RATES" :key="r" :value="r">{{ r }} ev/s</option>
+    </select>
+
     <span v-if="isPlaying" class="text-xs text-gray-500 tabular-nums">
       {{ store.recentAlerts.length }} events
     </span>
 
     <div class="flex-1" />
+
+    <button
+      v-if="hasSamples"
+      class="text-xs px-2 py-1 rounded border bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700"
+      @click="downloadBenchmarkCSV(bm.getSamples())"
+    >
+      CSV
+    </button>
 
     <button
       class="text-xs px-2 py-1 rounded border bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700"

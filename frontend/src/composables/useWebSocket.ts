@@ -1,6 +1,7 @@
 import { ref, reactive } from 'vue'
 import { useSonification } from './useSonification'
-import { generateDemoAlert } from '~/utils/demoGenerator'
+import { useBenchmark } from './useBenchmark'
+import { generateDemoAlertWithRate, getDemoRate, setDemoRate } from '~/utils/demoGenerator'
 import type { Alert, ConnectionStatus } from '~/types/alert'
 
 const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3000'
@@ -14,36 +15,43 @@ const state = reactive({
 
 let ws: WebSocket | null = null
 let retries = 0
-let demoInterval: ReturnType<typeof setInterval> | null = null
+let demoInterval: ReturnType<typeof setTimeout> | null = null
 
 function startDemo() {
   state.status = 'demo'
   const sonification = useSonification()
+  const bm = useBenchmark()
+  bm.startBenchmark()
 
-  function emitDemoAlert() {
-    const alert = generateDemoAlert()
-    sonification.processAlert(alert)
+  function emitOne() {
+    const result = generateDemoAlertWithRate(getDemoRate())
+    if (!result) return
+    sonification.processAlert(result.alert)
+    scheduleNext()
   }
 
   function scheduleNext() {
-    const isBurst = Math.random() < 0.05
+    const result = generateDemoAlertWithRate(getDemoRate())
+    if (!result) return
+    const isBurst = Math.random() < 0.03
     if (isBurst) {
-      const count = 5 + Math.floor(Math.random() * 10)
+      const count = 3 + Math.floor(Math.random() * 5)
       for (let i = 0; i < count; i++) {
-        setTimeout(() => emitDemoAlert(), i * 100)
+        setTimeout(() => {
+          const r = generateDemoAlertWithRate(getDemoRate())
+          if (r) sonification.processAlert(r.alert)
+        }, i * Math.max(10, result.intervalMs / count))
       }
     }
-    const interval = -Math.log(Math.random()) * 2000
-    demoInterval = setTimeout(() => {
-      emitDemoAlert()
-      scheduleNext()
-    }, interval)
+    demoInterval = setTimeout(emitOne, result.intervalMs)
   }
 
   scheduleNext()
 }
 
 function stopDemo() {
+  const bm = useBenchmark()
+  bm.stopBenchmark()
   if (demoInterval) {
     clearInterval(demoInterval)
     demoInterval = null
@@ -52,7 +60,6 @@ function stopDemo() {
 
 function connect() {
   if (ws) return
-
   state.status = 'connecting'
   retries = 0
   doConnect()
@@ -60,12 +67,8 @@ function connect() {
 
 function doConnect() {
   ws = new WebSocket(WS_URL)
-
   const timeout = setTimeout(() => {
-    if (ws) {
-      ws.close()
-      ws = null
-    }
+    if (ws) { ws.close(); ws = null }
     handleDisconnect()
   }, TIMEOUT_MS)
 
@@ -81,9 +84,7 @@ function doConnect() {
       const alert: Alert = JSON.parse(event.data)
       const sonification = useSonification()
       sonification.processAlert(alert)
-    } catch {
-      // ignore malformed messages
-    }
+    } catch { /* ignore */ }
   }
 
   ws.onclose = () => {
@@ -92,15 +93,11 @@ function doConnect() {
     handleDisconnect()
   }
 
-  ws.onerror = () => {
-    ws?.close()
-  }
+  ws.onerror = () => ws?.close()
 }
 
 function handleDisconnect() {
-  if (state.status === 'connected') {
-    state.status = 'disconnected'
-  }
+  if (state.status === 'connected') state.status = 'disconnected'
   if (retries < MAX_RETRIES) {
     retries++
     setTimeout(doConnect, RECONNECT_INTERVAL * retries)
@@ -110,10 +107,7 @@ function handleDisconnect() {
 }
 
 function disconnect() {
-  if (ws) {
-    ws.close()
-    ws = null
-  }
+  if (ws) { ws.close(); ws = null }
   stopDemo()
   state.status = 'disconnected'
   retries = 0
@@ -126,5 +120,7 @@ export function useWebSocket() {
     disconnect,
     startDemo,
     stopDemo,
+    setDemoRate,
+    getDemoRate,
   }
 }

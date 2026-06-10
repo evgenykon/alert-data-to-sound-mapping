@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import * as d3 from 'd3'
 import { raDecToScreen } from '~/utils/projections'
 import { getConstellation } from '~/utils/constellations'
@@ -172,9 +172,7 @@ function updatePoints() {
 }
 
 function loop() {
-  if (store.alerts.size > 0) {
-    updatePoints()
-  }
+  updatePoints()
   animFrame = requestAnimationFrame(loop)
 }
 
@@ -204,6 +202,14 @@ onMounted(() => {
   }
   render()
   animFrame = requestAnimationFrame(loop)
+})
+
+watch(() => store.clearKey.value, () => {
+  if (svgRef.value) {
+    const s = d3.select(svgRef.value)
+    s.selectAll('*').remove()
+    render()
+  }
 })
 
 onUnmounted(() => {

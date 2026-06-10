@@ -2,6 +2,7 @@ import { reactive } from 'vue'
 import { playSound } from './useAudioEngine'
 import { alertToAudioParams, isRareType } from '~/utils/mapping'
 import { useAlertStore } from './useAlertStore'
+import { useBenchmark } from './useBenchmark'
 import type { Alert, AlertType, SonificationStrategy, SoundPaletteId } from '~/types/alert'
 
 interface SonificationConfig {
@@ -68,9 +69,12 @@ function shouldPlay(alert: Alert): boolean {
 }
 
 function playSingle(alert: Alert) {
+  const bm = useBenchmark()
   const params = alertToAudioParams(alert, config.palette)
+  bm.markB(alert.alertId)
   const duration = config.grainsMode || config.strategy === 'grains' ? GRAIN_DURATION : SOUND_DURATION
   playSound({ ...params, duration })
+  bm.markC(alert.alertId)
 }
 
 function flushAggregate() {
@@ -93,6 +97,8 @@ function flushAggregate() {
 function processAlert(alert: Alert) {
   if (!shouldPlay(alert)) return
 
+  const bm = useBenchmark()
+  const sampleId = bm.markA(alert.alertId, alert.type)
   const store = useAlertStore()
   store.addAlert(alert)
   const decayTimer = setTimeout(() => store.markDecaying(alert.alertId), SOUND_DURATION * 1000)

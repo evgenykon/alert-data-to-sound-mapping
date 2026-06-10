@@ -40,7 +40,7 @@ const strategies: { value: SonificationStrategy; label: string; desc: string }[]
       </button>
     </div>
 
-    <div v-if="open && sonification.config.strategy === 'score-filter'" class="mt-2">
+    <div v-if="sonification.config.strategy === 'score-filter'" class="mt-2">
       <label class="text-xs text-gray-500">Threshold: {{ sonification.config.scoreThreshold.toFixed(2) }}</label>
       <input type="range" min="0" max="1" step="0.01"
         :value="sonification.config.scoreThreshold"
@@ -48,7 +48,7 @@ const strategies: { value: SonificationStrategy; label: string; desc: string }[]
         @input="sonification.setScoreThreshold(Number(($event.target as HTMLInputElement).value))">
     </div>
 
-    <div v-if="open && sonification.config.strategy === 'sampling'" class="mt-2">
+    <div v-if="sonification.config.strategy === 'sampling'" class="mt-2">
       <label class="text-xs text-gray-500">Every Nth: {{ sonification.config.samplingRate }}</label>
       <input type="range" min="1" max="100" step="1"
         :value="sonification.config.samplingRate"
@@ -56,7 +56,7 @@ const strategies: { value: SonificationStrategy; label: string; desc: string }[]
         @input="sonification.setSamplingRate(Number(($event.target as HTMLInputElement).value))">
     </div>
 
-    <div v-if="open && sonification.config.strategy === 'rate-limit'" class="mt-2">
+    <div v-if="sonification.config.strategy === 'rate-limit'" class="mt-2">
       <label class="text-xs text-gray-500">Max/sec: {{ sonification.config.rateLimit }}</label>
       <input type="range" min="1" max="500" step="1"
         :value="sonification.config.rateLimit"

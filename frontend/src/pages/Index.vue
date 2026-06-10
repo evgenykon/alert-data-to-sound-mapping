@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import TransportControls from '~/components/TransportControls.vue'
+import BenchmarkHUD from '~/components/BenchmarkHUD.vue'
 import StarMap from '~/components/StarMap.vue'
 import StrategySelector from '~/components/StrategySelector.vue'
 import PaletteSelector from '~/components/PaletteSelector.vue'
 import ClassFilter from '~/components/ClassFilter.vue'
 import EventLog from '~/components/EventLog.vue'
+import { useAlertStore } from '~/composables/useAlertStore'
+
+const store = useAlertStore()
 
 type PanelMode = 'controls' | 'logs' | 'hidden'
 
@@ -43,6 +47,16 @@ function toggleLogs() {
           <StrategySelector />
           <PaletteSelector />
           <ClassFilter />
+          <div class="bg-gray-900 border border-gray-800 rounded p-3">
+            <label class="text-xs text-gray-500 flex items-center justify-between">
+              <span>Log retention: {{ (store.logKeep.value / 1000 / 60).toFixed(0) }} min</span>
+              <button class="text-xs px-2 py-0.5 rounded border border-gray-700 bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+                @click="store.reset()">Clear</button>
+            </label>
+            <input type="range" min="30" max="3600" step="30" :value="store.logKeep.value / 1000"
+              class="w-full accent-green-500 mt-1"
+              @input="store.setLogKeep(Number(($event.target as HTMLInputElement).value))">
+          </div>
           <EventLog />
         </template>
         <template v-if="panelMode === 'logs'">
@@ -50,6 +64,8 @@ function toggleLogs() {
         </template>
       </div>
     </div>
+
+    <BenchmarkHUD />
   </div>
 </template>
 

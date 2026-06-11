@@ -46,6 +46,28 @@ GitHub Pages (SPA)          Hugging Face Space (Docker)
 | **LSST Kafka** | ❌ Rubin Observatory not yet operational | SASL credentials |
 | **Fink** | ❌ [Fink](https://fink-broker.org) API unavailable | None |
 
+## Benchmark
+
+The benchmark HUD (top-left corner) measures end-to-end sonification latency in real time.
+
+**Metrics displayed:**
+| Metric | Description |
+|---|---|
+| FPS | Render frames per second |
+| Frame | Time per animation frame (ms) |
+| Rate | Actual vs target event rate (ev/s) |
+| Avg / p95 / Max | Average, 95th percentile, and peak total latency (ms) |
+| Jitter | Standard deviation of latency (ms) — lower is better for audio |
+| Audio | AudioContext state (`running`/`suspended`) |
+| BaseLat | AudioContext `baseLatency` (ms) |
+
+**Three timestamps per event:**
+- `tA` — alert received (or `_serverTs` from backend — transport latency)
+- `tB` — mapping done, before `playSound()`
+- `tC` — after `playSound()` call
+
+**Export:** Click `Download CSV` — `alertId, type, tA/tB/tC, latencyMap, latencyAudio, totalLatency, transportLatency` — up to 10,000 samples.
+
 ## Tech Stack
 
 | Layer | Technology |

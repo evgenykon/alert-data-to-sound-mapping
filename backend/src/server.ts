@@ -41,7 +41,7 @@ export function startServer(port = 3000) {
 
 export function broadcast(alert: Alert) {
   if (!wss) return
-  const msg = JSON.stringify(alert)
+  const msg = JSON.stringify({ ...alert, _serverTs: Date.now() })
   let count = 0
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {

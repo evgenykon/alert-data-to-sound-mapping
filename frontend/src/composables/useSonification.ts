@@ -41,14 +41,18 @@ export function processAlert(alert: Alert) {
   if (!shouldPlay(alert)) return
   const bm = useBenchmark()
   const store = useAlertStore()
-  bm.markA(alert.alertId, alert.type)
+  const alertWithTs = alert as Alert & { _serverTs?: number }
+  bm.markA(alert.alertId, alert.type, alertWithTs._serverTs)
   store.addAlert(alert)
   setTimeout(() => store.markDecaying(alert.alertId), SOUND_DURATION * 1000)
   const params = alertToAudioParams(alert, config.palette)
   bm.markB(alert.alertId)
   const duration = config.grainsMode || config.strategy === 'grains' ? 0.03 : SOUND_DURATION
-  playSound({ ...params, duration })
-  bm.markC(alert.alertId)
+  try {
+    playSound({ ...params, duration })
+  } finally {
+    bm.markC(alert.alertId)
+  }
 }
 
 export function useSonification() {

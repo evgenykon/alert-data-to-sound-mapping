@@ -28,10 +28,6 @@ deploy:
 	@echo ""
 	cd backend && git push hf main
 
-deploy-setup:
-	@echo "Добавь remote для HF Space (замени username и spacename):"
-	@echo "  git remote add hf https://huggingface.co/spaces/<username>/<spacename>"
-
 lint:
 	docker run --rm -v $(PWD)/frontend:/app -w /app node:24-alpine sh -c "npm install && npm run typecheck"
 	docker run --rm -v $(PWD)/backend:/app -w /app oven/bun:1 sh -c "bun install && bun run typecheck"

@@ -33,7 +33,7 @@ function markDecaying(alertId: string) {
 }
 
 function cleanup() {
-  const r = _globalRate || 0.5
+  const r = _globalRate.value || 0.5
   const displayMs = r < 10 ? 60000 : r < 50 ? 10000 : 3000
   const cutoff = Date.now() - Math.max(displayMs, 5000)
   for (const [id, a] of store.alerts) {
@@ -52,9 +52,9 @@ function cleanup() {
   }
 }
 
-let _globalRate = 0.5
-export function setGlobalRate(r: number) { _globalRate = r }
-export function getGlobalRate(): number { return _globalRate }
+const _globalRate = ref(0.5)
+export function setGlobalRate(r: number) { _globalRate.value = r }
+export function getGlobalRate(): number { return _globalRate.value }
 
 let flushTimer: ReturnType<typeof setInterval> | null = null
 let cleanupTimer: ReturnType<typeof setInterval> | null = null
@@ -80,7 +80,7 @@ function reset() { store.alerts.clear(); store.recent = []; uiBuffer.length = 0;
 export function useAlertStore() {
   return {
     alerts: store.alerts, get recentAlerts() { return store.recent }, get hoveredId() { return store.hoveredId },
-    clearKey, logKeep, flushIntervalMs,
+    clearKey, logKeep, flushIntervalMs, targetRate: _globalRate,
     setLogKeep: (s: number) => { logKeep.value = s * 1000 },
     setFlushInterval: (ms: number) => { flushIntervalMs.value = ms },
     addAlert, markDecaying, setHovered: (id: string | null) => { store.hoveredId = id },

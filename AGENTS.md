@@ -62,6 +62,17 @@ make run
 backend (встроенный генератор) → WebSocket → frontend
 ```
 
+### Lasair Kafka
+
+Для подключения к Lasair Kafka нужно передать переменные окружения:
+- `LASAIR_API_KEY` — ваш API-ключ Lasair (обязательно)
+- `LASAIR_BROKER` — адрес брокера (по умолчанию `kafka.lasair.ac.uk:9092`)
+- `LASAIR_TOPIC` — топик (по умолчанию `ztf_alert`)
+
+```bash
+make dev ALERT_SOURCE=lasair LASAIR_API_KEY=your_key
+```
+
 ### Примечание
 
 Для подключения к реальному LSST Kafka нужно передать переменные окружения:

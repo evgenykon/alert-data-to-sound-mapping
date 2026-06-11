@@ -10,6 +10,9 @@ services:
       KAFKA_TOPIC: "${KAFKA_TOPIC}"
       KAFKA_USER: "${KAFKA_USER}"
       KAFKA_PASS: "${KAFKA_PASS}"
+      LASAIR_BROKER: "${LASAIR_BROKER}"
+      LASAIR_TOPIC: "${LASAIR_TOPIC}"
+      LASAIR_API_KEY: "${LASAIR_API_KEY}"
 
   frontend:
     build: ./frontend

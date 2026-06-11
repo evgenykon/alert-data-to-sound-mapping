@@ -32,6 +32,15 @@ export async function startSource(type: AlertSourceType, customConfig?: Record<s
       maxResults: cfg.maxResults as number || 10,
     })
     currentSource.start(emit)
+  } else if (type === 'lasair') {
+    const { createLasairSource } = await import('./sources/lasair.js')
+    const cfg = (customConfig || {}) as Record<string, string | undefined>
+    currentSource = createLasairSource({
+      broker: cfg.broker as string || process.env.LASAIR_BROKER || 'kafka.lasair.ac.uk:9092',
+      topic: cfg.topic as string || process.env.LASAIR_TOPIC || 'ztf_alert',
+      apiKey: cfg.apiKey as string || process.env.LASAIR_API_KEY || '',
+    })
+    currentSource.start(emit)
   } else {
     console.error('Unknown source type:', type)
   }

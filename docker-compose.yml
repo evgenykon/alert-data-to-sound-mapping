@@ -6,11 +6,10 @@ services:
     environment:
       PORT: "3000"
       ALERT_SOURCE: "${ALERT_SOURCE:-demo}"
-      # For Kafka source:
-      # KAFKA_BROKER: "${KAFKA_BROKER}"
-      # KAFKA_TOPIC: "${KAFKA_TOPIC}"
-      # KAFKA_USER: "${KAFKA_USER}"
-      # KAFKA_PASS: "${KAFKA_PASS}"
+      KAFKA_BROKER: "${KAFKA_BROKER}"
+      KAFKA_TOPIC: "${KAFKA_TOPIC}"
+      KAFKA_USER: "${KAFKA_USER}"
+      KAFKA_PASS: "${KAFKA_PASS}"
 
   frontend:
     build: ./frontend

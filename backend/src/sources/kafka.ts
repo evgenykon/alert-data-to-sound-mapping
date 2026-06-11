@@ -1,4 +1,4 @@
-import { Kafka } from 'kafkajs'
+import { Kafka, type SASLOptions } from 'kafkajs'
 import type { Alert, AlertSource } from '../types.js'
 
 export function createKafkaSource(config: {
@@ -11,19 +11,14 @@ export function createKafkaSource(config: {
   let running = false
   let onAlert: ((a: Alert) => void) | null = null
 
+  const sasl: SASLOptions | undefined = config.user && config.pass
+    ? { mechanism: 'scram-sha-512', username: config.user, password: config.pass }
+    : undefined
+
   const kafka = new Kafka({
     clientId: 'alert-sound-mapping',
     brokers: [config.broker],
-    ...(config.user
-      ? {
-          sasl: {
-            mechanism: 'scram-sha-256' as const,
-            username: config.user,
-            password: config.pass || '',
-          },
-          ssl: true,
-        }
-      : {}),
+    sasl,
   })
 
   return {
@@ -40,7 +35,8 @@ export function createKafkaSource(config: {
           eachMessage: async ({ message }) => {
             if (!running || !onAlert || !message.value) return
             try {
-              const alert: Alert = JSON.parse(message.value.toString())
+              const raw = message.value.toString()
+              const alert: Alert = JSON.parse(raw)
               onAlert(alert)
             } catch { /* skip malformed */ }
           },

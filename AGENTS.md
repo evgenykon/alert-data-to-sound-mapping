@@ -71,3 +71,27 @@ backend (встроенный генератор) → WebSocket → frontend
 - `KAFKA_PASS`
 
 В production на HF Space эти переменные задаются через Secrets в настройках Space.
+
+### Деплой на HF Space
+
+```bash
+# Настроить remote (один раз):
+git remote add hf https://huggingface.co/spaces/evgenykon/alert-data-to-sound-mapping
+
+# Деплой:
+make deploy   # → git push hf main
+```
+
+HF Space использует `Dockerfile` из корня репозитория. Сборка стартует автоматически после пуша.
+
+### Сборка фронтенда для GitHub Pages
+
+```bash
+# Dev (локальный бэкенд):
+make frontend
+
+# Production (HF Space):
+VITE_WS_URL=wss://evgenykon-alert-data-to-sound-mapping.hf.space make frontend
+
+# Результат в frontend/dist/ — залить на GitHub Pages
+```

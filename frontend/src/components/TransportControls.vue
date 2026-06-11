@@ -41,7 +41,7 @@ function stop() {
       <option value="live">Live</option><option value="demo">Demo</option>
     </select>
 
-    <select :value="rateVal" class="bg-gray-800 text-xs px-2 py-1 rounded border border-gray-700 text-gray-300"
+    <select v-if="mode === 'demo'" :value="rateVal" class="bg-gray-800 text-xs px-2 py-1 rounded border border-gray-700 text-gray-300"
       @change="rateVal = Number(($event.target as HTMLSelectElement).value); ws.setRate(rateVal)">
       <option v-for="r in RATES" :key="r" :value="r">{{ r }} ev/s</option>
     </select>

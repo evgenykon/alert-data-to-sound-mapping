@@ -86,9 +86,13 @@ function updatePoints() {
       if (lx + 200 > window.innerWidth) lx = event.pageX - 200
       if (ly + 220 > window.innerHeight) ly = window.innerHeight - 225
       tooltip!.style('display', 'block').style('left', lx + 'px').style('top', ly + 'px')
-        .html(`<div style="font-size:11px;line-height:1.5;max-width:200px"><strong style="color:${typeColors[a.type]||'#9ca3af'}">${a.type}</strong><br><span style="color:#6b7280">con:</span> ${con||'—'}<br><span style="color:#6b7280">ID:</span> ${a.alertId}<br><span style="color:#6b7280">RA:</span> ${hh}h ${mm}m ${ss}s<br><span style="color:#6b7280">Dec:</span> ${decD}° ${Math.abs(decM)}' ${decS}"<br><span style="color:#6b7280">mag:</span> ${a.magnitude.toFixed(1)}<br><span style="color:#6b7280">z:</span> ${a.redshift.toFixed(3)}<br><span style="color:#6b7280">rise:</span> ${a.riseTime.toFixed(2)}s<br><span style="color:#6b7280">score:</span> ${a.score.toFixed(2)}<br><span style="color:#6b7280">age:</span> ${age}s<br><a href="https://lasair-ztf.lsst.ac.uk/objects/${a.alertId}/" target="_blank" style="color:#60a5fa;text-decoration:underline">🔗 Lasair</a></div>`)
+        .html(`<div style="font-size:11px;line-height:1.5;max-width:200px"><strong style="color:${typeColors[a.type]||'#9ca3af'}">${a.type}</strong><br><span style="color:#6b7280">con:</span> ${con||'—'}<br><span style="color:#6b7280">ID:</span> ${a.alertId} <span style="color:#4b5563;font-size:10px">(dblclick → Lasair)</span><br><span style="color:#6b7280">RA:</span> ${hh}h ${mm}m ${ss}s<br><span style="color:#6b7280">Dec:</span> ${decD}° ${Math.abs(decM)}' ${decS}"<br><span style="color:#6b7280">mag:</span> ${a.magnitude.toFixed(1)}<br><span style="color:#6b7280">z:</span> ${a.redshift.toFixed(3)}<br><span style="color:#6b7280">rise:</span> ${a.riseTime.toFixed(2)}s<br><span style="color:#6b7280">score:</span> ${a.score.toFixed(2)}<br><span style="color:#6b7280">age:</span> ${age}s</div>`)
     })
     .on('mouseleave', () => tooltip!.style('display', 'none'))
+    .on('dblclick', function (this: SVGCircleElement, _event: MouseEvent, d: unknown) {
+      const a = d as any
+      if (a.alertId) window.open(`https://lasair-ztf.lsst.ac.uk/objects/${a.alertId}/`, '_blank')
+    })
 }
 
 function loop() {
@@ -139,7 +143,7 @@ function markDirty() { mapDirty = true }
       <line :x1="crosshair.x" :y1="crosshair.y - 8" :x2="crosshair.x" :y2="crosshair.y + 8" stroke="#22c55e" stroke-width="2" />
       <circle :cx="crosshair.x" :cy="crosshair.y" r="5" fill="none" stroke="#22c55e" stroke-width="1.5" />
     </svg>
-    <div ref="tooltipRef" style="position:fixed;z-index:300;display:none;background:rgba(3,7,18,.95);border:1px solid #374151;border-radius:4px;padding:8px 12px;pointer-events:auto" />
+    <div ref="tooltipRef" style="position:fixed;z-index:300;display:none;background:rgba(3,7,18,.95);border:1px solid #374151;border-radius:4px;padding:8px 12px;pointer-events:none" />
     <div style="position:absolute;bottom:8px;left:8px;font-size:10px;color:#4b5563;pointer-events:none">✦ Aitoff projection</div>
   </div>
 </template>

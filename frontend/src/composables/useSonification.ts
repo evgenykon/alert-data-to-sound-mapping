@@ -13,7 +13,7 @@ interface Config {
 
 const config = reactive<Config>({
   strategy: 'aggregate', scoreThreshold: 0.3, samplingRate: 5, rateLimit: 50, grainsMode: false,
-  palette: 'scientific',
+  palette: 'ethereal',
   enabledTypes: new Set<AlertType>([
     'RR Lyrae', 'Cepheid', 'Mira', 'LPV', 'AGN', 'QSO', 'SN Ia', 'SN Ib', 'SN Ic', 'SN II', 'Kilonova', 'TDE', 'Unknown',
   ]),

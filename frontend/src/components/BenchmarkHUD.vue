@@ -9,6 +9,7 @@ const store = useAlertStore()
 const collapsed = ref(false)
 const hasSamples = computed(() => bm.sampleCount.value > 0)
 const frameMs = computed(() => bm.frameTime.value.toFixed(1))
+const audioRunning = computed(() => bm.audioCtxState.value === 'running')
 </script>
 
 <template>
@@ -32,7 +33,7 @@ const frameMs = computed(() => bm.frameTime.value.toFixed(1))
     <div class="hud-row"><span class="hud-label">Max</span><span class="hud-value">{{ bm.maxLatency }} ms</span></div>
     <div class="hud-row"><span class="hud-label">Jitter</span><span class="hud-value">{{ bm.jitter }} ms</span></div>
     <div class="hud-divider" />
-    <div class="hud-row"><span class="hud-label">Audio</span><span class="hud-value hud-audio" :class="{ 'hud-warn': bm.audioCtxState !== 'running' }">{{ bm.audioCtxState }}</span></div>
+    <div class="hud-row"><span class="hud-label">Audio</span><span class="hud-value hud-audio" :class="{ 'hud-warn': !audioRunning }">{{ bm.audioCtxState }}</span></div>
     <div class="hud-row"><span class="hud-label">BaseLat</span><span class="hud-value">{{ bm.audioBaseLatency }}ms</span></div>
     <div class="hud-sml">{{ bm.sampleCount }} samples</div>
     <button v-if="hasSamples" class="hud-csv" @click="downloadCSV(bm.getSamples())">Download CSV</button>

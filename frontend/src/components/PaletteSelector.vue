@@ -6,7 +6,7 @@ import type { SoundPaletteId } from '~/types/alert'
 
 const sonification = useSonification()
 const open = ref(false)
-const list: SoundPaletteId[] = ['scientific', 'musical', 'xenomorphic', 'minimal', 'cinematic']
+const list: SoundPaletteId[] = ['scientific', 'musical', 'ethereal', 'tuned', 'subterranean', 'cinematic', 'xenomorphic', 'minimal']
 </script>
 
 <template>

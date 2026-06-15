@@ -15,8 +15,8 @@ async function main() {
     return
   }
 
-  if (sourceType === 'lasair' && !process.env.LASAIR_API_KEY) {
-    console.log('LASAIR_API_KEY not set, falling back to demo source')
+  if (sourceType === 'lasair' && !process.env.LASAIR_BROKER && !process.env.LASAIR_API_KEY) {
+    console.log('LASAIR_BROKER or LASAIR_API_KEY not set, falling back to demo source')
     await startSource('demo')
     return
   }

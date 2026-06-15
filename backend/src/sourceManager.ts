@@ -36,11 +36,18 @@ export async function startSource(type: AlertSourceType, customConfig?: Record<s
     const { createLasairSource } = await import('./sources/lasair.js')
     const cfg = (customConfig || {}) as Record<string, string | undefined>
     currentSource = createLasairSource({
-      broker: cfg.broker as string || process.env.LASAIR_BROKER || 'kafka.lasair.ac.uk:9092',
-      topic: cfg.topic as string || process.env.LASAIR_TOPIC || 'ztf_alert',
+      broker: cfg.broker as string || process.env.LASAIR_BROKER || 'lasair-ztf-kafka.lsst.ac.uk:9092',
+      topic: cfg.topic as string || process.env.LASAIR_TOPIC || 'lasair_ztf',
       apiKey: cfg.apiKey as string || process.env.LASAIR_API_KEY || '',
     })
-    currentSource.start(emit)
+    try {
+      await currentSource.start(emit)
+      console.log(`[sourceManager] lasair source started`)
+    } catch (err) {
+      console.error(`[sourceManager] lasair source failed to start:`, err)
+      console.log(`[sourceManager] falling back to demo source`)
+      await startSource('demo')
+    }
   } else {
     console.error('Unknown source type:', type)
   }

@@ -13,7 +13,7 @@ const bm = useBenchmark()
 const hasSamples = computed(() => bm.sampleCount.value > 0)
 
 const isPlaying = ref(false)
-const mode = ref<AppMode>('demo')
+const mode = ref<AppMode>('live')
 const rateVal = ref(0.5)
 const RATES = [0.5, 1, 5, 10, 50, 100, 200, 500]
 

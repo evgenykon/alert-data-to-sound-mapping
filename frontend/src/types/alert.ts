@@ -16,9 +16,10 @@ export interface AlertState extends Alert {
 export type SonificationStrategy = 'aggregate' | 'score-filter' | 'sampling' | 'grains' | 'rate-limit'
 export type AppMode = 'live' | 'demo'
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'demo'
-export type SoundPaletteId = 'scientific' | 'musical' | 'xenomorphic' | 'minimal' | 'cinematic'
+export type SoundPaletteId = 'scientific' | 'musical' | 'xenomorphic' | 'minimal' | 'cinematic' | 'ethereal' | 'tuned' | 'subterranean'
 
 export interface AudioParams {
   type: OscillatorType; frequency: number; gain: number
   positionX: number; positionY: number; positionZ: number; attack: number
+  filterFreq?: number
 }

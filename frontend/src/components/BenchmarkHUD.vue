@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, unref } from 'vue'
 import { useBenchmark } from '~/composables/useBenchmark'
 import { useAlertStore } from '~/composables/useAlertStore'
 import { downloadCSV } from '~/utils/benchmarkExport'
@@ -9,7 +9,7 @@ const store = useAlertStore()
 const collapsed = ref(false)
 const hasSamples = computed(() => bm.sampleCount.value > 0)
 const frameMs = computed(() => bm.frameTime.value.toFixed(1))
-const audioRunning = computed(() => bm.audioCtxState.value === 'running')
+const audioRunning = computed(() => unref(bm.audioCtxState) === 'running')
 </script>
 
 <template>

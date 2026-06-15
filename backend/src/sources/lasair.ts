@@ -52,7 +52,7 @@ export function createLasairSource(config: {
       running = true
       consumer = kafka.consumer({ groupId: 'alert-sound-mapping-lasair-group' })
       await consumer.connect()
-      await consumer.subscribe({ topic: config.topic, fromBeginning: false })
+      await consumer.subscribe({ topic: config.topic, fromBeginning: true })
       await consumer.run({
         eachMessage: async ({ message }) => {
           if (!running || !onAlert || !message.value) return

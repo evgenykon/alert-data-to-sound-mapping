@@ -18,7 +18,9 @@ function mapLasairToAlert(raw: Record<string, unknown>): Alert | null {
     if (!alertId) return null
 
     // ZTF alert packets store data under "candidate"
-    const cand = (raw.candidate as Record<string, unknown>) || raw
+    let candRaw = raw.candidate
+    if (typeof candRaw === 'string') try { candRaw = JSON.parse(candRaw) } catch { candRaw = null }
+    const cand = (candRaw as Record<string, unknown>) || raw
 
     const alert: Alert = {
       alertId,

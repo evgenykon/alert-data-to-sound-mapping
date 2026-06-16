@@ -36,7 +36,8 @@ function drawGraticule() {
   svg.selectAll('g.graticule > *').remove()
   const g = svg.select('g.graticule')
 
-  g.append('rect').attr('width', mapW).attr('height', mapH).attr('fill', '#030712')
+  g.append('rect').attr('width', mapW).attr('height', mapH).attr('fill', '#030712').style('cursor', 'pointer')
+    .on('click', () => store.clearSelection())
 
   // Outer boundary
   const boundary: [number, number][] = []
@@ -89,6 +90,10 @@ function updatePoints() {
         .html(`<div style="font-size:11px;line-height:1.5;max-width:200px"><strong style="color:${typeColors[a.type]||'#9ca3af'}">${a.type}</strong><br><span style="color:#6b7280">con:</span> ${con||'—'}<br><span style="color:#6b7280">ID:</span> ${a.alertId} <span style="color:#4b5563;font-size:10px">(dblclick → Lasair)</span><br><span style="color:#6b7280">RA:</span> ${hh}h ${mm}m ${ss}s<br><span style="color:#6b7280">Dec:</span> ${decD}° ${Math.abs(decM)}' ${decS}"<br><span style="color:#6b7280">mag:</span> ${a.magnitude.toFixed(1)}<br><span style="color:#6b7280">z:</span> ${a.redshift.toFixed(3)}<br><span style="color:#6b7280">rise:</span> ${a.riseTime.toFixed(2)}s<br><span style="color:#6b7280">score:</span> ${a.score.toFixed(2)}<br><span style="color:#6b7280">age:</span> ${age}s</div>`)
     })
     .on('mouseleave', () => tooltip!.style('display', 'none'))
+    .on('click', function (this: SVGCircleElement, _event: MouseEvent, d: unknown) {
+      const a = d as any
+      if (a.alertId) store.selectAlert(a.alertId)
+    })
     .on('dblclick', function (this: SVGCircleElement, _event: MouseEvent, d: unknown) {
       const a = d as any
       if (a.alertId) window.open(`https://lasair-ztf.lsst.ac.uk/objects/${a.alertId}/`, '_blank')

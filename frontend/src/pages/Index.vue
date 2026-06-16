@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import TransportControls from '~/components/TransportControls.vue'
 import BenchmarkHUD from '~/components/BenchmarkHUD.vue'
 import StarMap from '~/components/StarMap.vue'
+import AlertDetailCard from '~/components/AlertDetailCard.vue'
 import StrategySelector from '~/components/StrategySelector.vue'
 import PaletteSelector from '~/components/PaletteSelector.vue'
 import ClassFilter from '~/components/ClassFilter.vue'
@@ -25,7 +26,7 @@ function toggleLogs() {
   <div class="app-root">
     <TransportControls @toggle-sidebar="toggleSidebar" @toggle-logs="toggleLogs" />
     <div class="app-body">
-      <div class="map-area"><StarMap /></div>
+      <div class="map-area"><StarMap /><AlertDetailCard /></div>
       <div v-if="panelMode === 'controls'" class="sidebar-panel">
         <StrategySelector /><PaletteSelector /><ClassFilter />
         <div class="bg-gray-900 border border-gray-800 rounded p-3">

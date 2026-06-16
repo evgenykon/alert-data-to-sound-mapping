@@ -16,6 +16,7 @@ const isPlaying = ref(false)
 const mode = ref<AppMode>('live')
 const rateVal = ref(0.5)
 const RATES = [0.5, 1, 5, 10, 50, 100, 200, 500]
+const source = ref<'local' | 'remote'>('remote')
 
 function togglePlay() { isPlaying.value ? stop() : start() }
 function start() {
@@ -23,11 +24,22 @@ function start() {
   bm.start()
   store.startCleanup()
   ws.setRate(rateVal.value)
-  if (mode.value === 'live') ws.connect()
-  else ws.startDemo()
+  if (mode.value === 'live') {
+    ws.setWsUrl(source.value === 'local' ? 'ws://localhost:3000' : ws.remoteUrl)
+    ws.connect()
+  } else ws.startDemo()
 }
 function stop() {
   isPlaying.value = false; bm.stop(); ws.disconnect(); store.stopCleanup()
+}
+
+function onSourceChange(s: 'local' | 'remote') {
+  source.value = s
+  if (isPlaying.value && mode.value === 'live') {
+    ws.disconnect()
+    ws.setWsUrl(s === 'local' ? 'ws://localhost:3000' : ws.remoteUrl)
+    ws.connect()
+  }
 }
 </script>
 
@@ -39,6 +51,11 @@ function stop() {
     <select :value="mode" class="bg-gray-800 text-xs px-2 py-1 rounded border border-gray-700 text-gray-300"
       @change="mode = ($event.target as HTMLSelectElement).value as AppMode">
       <option value="live">Live</option><option value="demo">Demo</option>
+    </select>
+
+    <select v-if="mode === 'live'" :value="source" class="bg-gray-800 text-xs px-2 py-1 rounded border border-gray-700 text-gray-300"
+      @change="onSourceChange(($event.target as HTMLSelectElement).value as 'local' | 'remote')">
+      <option value="local">Local</option><option value="remote">HF Space</option>
     </select>
 
     <select v-if="mode === 'demo'" :value="rateVal" class="bg-gray-800 text-xs px-2 py-1 rounded border border-gray-700 text-gray-300"

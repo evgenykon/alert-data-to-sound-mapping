@@ -10,6 +10,7 @@ const store = reactive({
   alerts: new Map<string, AlertState>(),
   recent: [] as AlertState[],
   hoveredId: null as string | null,
+  selectedId: null as string | null,
 })
 
 const uiBuffer: AlertState[] = []
@@ -79,11 +80,14 @@ function reset() { store.alerts.clear(); store.recent = []; uiBuffer.length = 0;
 
 export function useAlertStore() {
   return {
-    alerts: store.alerts, get recentAlerts() { return store.recent }, get hoveredId() { return store.hoveredId },
+    alerts: store.alerts, get recentAlerts() { return store.recent }, get hoveredId() { return store.hoveredId }, get selectedId() { return store.selectedId },
     clearKey, logKeep, flushIntervalMs, targetRate: _globalRate,
     setLogKeep: (s: number) => { logKeep.value = s * 1000 },
     setFlushInterval: (ms: number) => { flushIntervalMs.value = ms },
-    addAlert, markDecaying, setHovered: (id: string | null) => { store.hoveredId = id },
+    addAlert, markDecaying,
+    setHovered: (id: string | null) => { store.hoveredId = id },
+    selectAlert: (id: string | null) => { store.selectedId = id },
+    clearSelection: () => { store.selectedId = null },
     startCleanup, stopCleanup, reset,
   }
 }

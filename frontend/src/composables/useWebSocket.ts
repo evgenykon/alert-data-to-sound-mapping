@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useSonification } from './useSonification'
 import { useBenchmark } from './useBenchmark'
 import { setGlobalRate, getGlobalRate } from './useAlertStore'
@@ -10,6 +10,9 @@ const RECONNECT_INTERVAL = 1000
 const MAX_RETRIES = 3
 const TIMEOUT_MS = 5000
 
+const DEFAULT_REMOTE = 'wss://evgenykon-alert-data-to-sound-mapping.hf.space'
+
+const wsUrl = ref(WS_URL)
 const state = reactive({ status: 'disconnected' as ConnectionStatus })
 let ws: WebSocket | null = null
 let retries = 0
@@ -50,6 +53,8 @@ function stopDemo() {
   bm.stop()
 }
 
+function setWsUrl(url: string) { wsUrl.value = url }
+
 function connect() {
   if (ws) return
   state.status = 'connecting'; retries = 0
@@ -57,7 +62,7 @@ function connect() {
 }
 
 function doConnect() {
-  ws = new WebSocket(WS_URL)
+  ws = new WebSocket(wsUrl.value)
   const timeout = setTimeout(() => { if (ws) { ws.close(); ws = null } handleDisconnect() }, TIMEOUT_MS)
   ws.onopen = () => { clearTimeout(timeout); retries = 0; state.status = 'connected'; stopDemo() }
   ws.onmessage = (event) => {
@@ -76,5 +81,10 @@ function handleDisconnect() {
 function disconnect() { if (ws) { ws.close(); ws = null } stopDemo(); state.status = 'disconnected'; retries = 0 }
 
 export function useWebSocket() {
-  return { status: state.status, connect, disconnect, startDemo, stopDemo, setRate: setGlobalRate, getRate: getGlobalRate }
+  return {
+    status: state.status, connect, disconnect, startDemo, stopDemo,
+    setRate: setGlobalRate, getRate: getGlobalRate,
+    get wsUrl() { return wsUrl.value }, setWsUrl,
+    remoteUrl: DEFAULT_REMOTE,
+  }
 }

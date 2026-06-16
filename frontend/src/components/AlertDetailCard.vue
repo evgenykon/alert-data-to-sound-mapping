@@ -13,12 +13,14 @@ const alert = computed(() => {
 
 function raHms(ra: number): string {
   if (!ra && ra !== 0) return '—'
+  if (ra === 0) return '—'
   const h = ra / 15, hh = Math.floor(h), mm = Math.floor((h - hh) * 60), ss = ((h - hh - mm / 60) * 3600).toFixed(1)
   return `${hh}h ${mm}m ${ss}s`
 }
 
 function decDms(dec: number): string {
   if (!dec && dec !== 0) return '—'
+  if (dec === 0) return '—'
   const d = dec >= 0 ? Math.floor(dec) : Math.ceil(dec)
   const m = Math.floor(Math.abs(dec - d) * 60)
   const s = ((Math.abs(dec - d) * 60 - m) * 60).toFixed(1)
@@ -74,7 +76,7 @@ function openObjectPage(id: string) {
       </div>
       <div class="field-row">
         <span class="field-label">mag</span>
-        <span class="field-val">{{ alert.magnitude.toFixed(2) }}</span>
+        <span class="field-val">{{ alert.magnitude >= 90 ? '—' : alert.magnitude.toFixed(2) }}</span>
         <span class="field-hint">apparent magnitude</span>
       </div>
       <div class="field-row">

@@ -64,18 +64,31 @@ let cleanupTimer: ReturnType<typeof setInterval> | null = null
 
 function startCleanup() {
   stopCleanup()
-  cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
-  flushTimer = setInterval(flushUI, flushIntervalMs.value)
-  // Re-create flush timer when interval changes
+  if (!document.hidden) {
+    cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
+    flushTimer = setInterval(flushUI, flushIntervalMs.value)
+  }
+  document.addEventListener('visibilitychange', onVisibility)
   watch(flushIntervalMs, () => {
     if (flushTimer) { clearInterval(flushTimer); flushTimer = null }
     flushTimer = setInterval(flushUI, flushIntervalMs.value)
   })
 }
 
+function onVisibility() {
+  if (document.hidden) {
+    if (cleanupTimer) { clearInterval(cleanupTimer); cleanupTimer = null }
+    if (flushTimer) { clearInterval(flushTimer); flushTimer = null }
+  } else {
+    cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
+    flushTimer = setInterval(flushUI, flushIntervalMs.value)
+  }
+}
+
 function stopCleanup() {
   if (cleanupTimer) { clearInterval(cleanupTimer); cleanupTimer = null }
   if (flushTimer) { clearInterval(flushTimer); flushTimer = null }
+  document.removeEventListener('visibilitychange', onVisibility)
 }
 
 function reset() { store.alerts.clear(); store.recent = []; uiBuffer.length = 0; clearKey.value++ }

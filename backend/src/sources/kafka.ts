@@ -9,6 +9,9 @@ const KNOWN_TYPES = new Set<string>([
 
 function normalize(alert: Alert, raw: Record<string, unknown>): void {
   if (!KNOWN_TYPES.has(alert.type)) alert.type = 'Unknown' as AlertType
+  if (alert.redshift === 0) alert.redshift = Number(raw.distnr ?? 0)
+  if (alert.riseTime === 0) alert.riseTime = 0.5
+  if (alert.score === 0) alert.score = Number(raw.classification_rel ?? 0)
   if (alert.ra !== 0 || alert.dec !== 0) return
   const cand = (raw.candidate as Record<string, unknown>) ?? raw
   alert.ra = Number(cand.ra ?? raw.ramean ?? 0)
@@ -61,9 +64,9 @@ export function createKafkaSource(config: {
                 dec: Number(parsed.dec ?? parsed.decmean ?? 0),
                 magnitude: Number(parsed.rmag ?? parsed.gmag ?? parsed.magnitude ?? 99),
                 type: (parsed.type ?? 'Unknown') as AlertType,
-                redshift: Number(parsed.redshift ?? 0),
-                riseTime: Number(parsed.riseTime ?? 0),
-                score: Number(parsed.score ?? 0),
+                redshift: Number(parsed.redshift ?? parsed.distnr ?? 0),
+                riseTime: Number(parsed.riseTime ?? 0.5),
+                score: Number(parsed.score ?? parsed.classification_rel ?? 0),
                 timestamp: Number(ts),
               }
               normalize(alert, parsed)

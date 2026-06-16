@@ -28,9 +28,9 @@ function mapLasairToAlert(raw: Record<string, unknown>): Alert | null {
       dec: Number(cand.dec ?? raw.dec ?? raw.decmean ?? 0),
       magnitude: Number(cand.magpsf ?? cand.magnr ?? raw.gmag ?? raw.rmag ?? raw.magnitude ?? 99),
       type: (raw['predicted classification'] ?? raw.classification ?? raw.type ?? 'Unknown') as AlertType,
-      redshift: Number(raw.redshift ?? cand.distnr ?? 0),
-      riseTime: 0,
-      score: Number(cand.drb ?? cand.rb ?? cand.classtar ?? raw.score ?? 0),
+      redshift: Number(raw.redshift ?? raw.distnr ?? 0),
+      riseTime: Number(raw.riseTime ?? 0.5),
+      score: Number(cand.drb ?? cand.rb ?? cand.classtar ?? raw.score ?? raw.classification_rel ?? 0),
       timestamp: parseAstroTime(cand.jd ?? cand.midpointMjdTai ?? raw['latest detection'] ?? raw.midpointMjdTai ?? raw.jd ?? raw.timestamp),
     }
     return alert

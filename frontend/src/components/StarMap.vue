@@ -127,6 +127,7 @@ onMounted(() => {
   svg.append('g').attr('class', 'graticule')
   drawGraticule()
   pointsGroup = svg.append('g').attr('class', 'points')
+  document.addEventListener('visibilitychange', onPageVisible)
   ro = new ResizeObserver(entries => {
     for (const e of entries) { mapW = e.contentRect.width; mapH = e.contentRect.height }
     drawGraticule()
@@ -135,7 +136,11 @@ onMounted(() => {
   animId = requestAnimationFrame(loop)
 })
 
-onUnmounted(() => { cancelAnimationFrame(animId); if (ro) ro.disconnect() })
+function onPageVisible() {
+  if (!document.hidden) mapDirty = true
+}
+
+onUnmounted(() => { cancelAnimationFrame(animId); if (ro) ro.disconnect(); document.removeEventListener('visibilitychange', onPageVisible) })
 
 function markDirty() { mapDirty = true }
 // Expose to global for use by cleanup

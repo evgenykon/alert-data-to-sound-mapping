@@ -1,4 +1,4 @@
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref } from 'vue'
 import type { Alert, AlertState } from '~/types/alert'
 
 const CLEANUP_INTERVAL = 100
@@ -14,20 +14,11 @@ const store = reactive({
   alertVersion: 0,
 })
 
-const uiBuffer: AlertState[] = []
-
 function addAlert(alert: Alert) {
   const state: AlertState = { ...alert, status: 'sounding', opacity: 1 }
   store.alerts.set(alert.alertId, state)
   store.alertVersion++
   store.recent.unshift(state)
-  if (store.recent.length > 500) store.recent.length = 500
-}
-
-function flushUI() {
-  if (!uiBuffer.length) return
-  const batch = uiBuffer.splice(0)
-  for (const s of batch) store.recent.unshift(s)
   if (store.recent.length > 500) store.recent.length = 500
 }
 
@@ -42,13 +33,13 @@ function cleanup() {
   const cutoff = Date.now() - Math.max(displayMs, 5000)
   for (const [id, a] of store.alerts) {
     const ts = a.timestamp * 1000
-    if (ts < cutoff) { store.alerts.delete(id) }
+    if (ts < cutoff) { store.alerts.delete(id); store.alertVersion++ }
     else if (a.status === 'decaying') { a.opacity = Math.max(0, 1 - (Date.now() - ts) / displayMs) }
   }
   const maxPoints = Math.max(50, Math.min(300, Math.round(r * 3)))
   if (store.alerts.size > maxPoints) {
     const sorted = Array.from(store.alerts.entries()).sort((a, b) => a[1].timestamp - b[1].timestamp)
-    for (const [id] of sorted.slice(0, sorted.length - maxPoints)) store.alerts.delete(id)
+    for (const [id] of sorted.slice(0, sorted.length - maxPoints)) { store.alerts.delete(id); store.alertVersion++ }
   }
   const logCutoff = Date.now() - logKeep.value
   for (let i = store.recent.length - 1; i >= 0; i--) {
@@ -60,39 +51,28 @@ const _globalRate = ref(0.5)
 export function setGlobalRate(r: number) { _globalRate.value = r }
 export function getGlobalRate(): number { return _globalRate.value }
 
-let flushTimer: ReturnType<typeof setInterval> | null = null
 let cleanupTimer: ReturnType<typeof setInterval> | null = null
-
-function startCleanup() {
-  stopCleanup()
-  if (!document.hidden) {
-    cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
-    flushTimer = setInterval(flushUI, flushIntervalMs.value)
-  }
-  document.addEventListener('visibilitychange', onVisibility)
-  watch(flushIntervalMs, () => {
-    if (flushTimer) { clearInterval(flushTimer); flushTimer = null }
-    flushTimer = setInterval(flushUI, flushIntervalMs.value)
-  })
-}
 
 function onVisibility() {
   if (document.hidden) {
     if (cleanupTimer) { clearInterval(cleanupTimer); cleanupTimer = null }
-    if (flushTimer) { clearInterval(flushTimer); flushTimer = null }
   } else {
     cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
-    flushTimer = setInterval(flushUI, flushIntervalMs.value)
   }
+}
+
+function startCleanup() {
+  stopCleanup()
+  cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
+  document.addEventListener('visibilitychange', onVisibility)
 }
 
 function stopCleanup() {
   if (cleanupTimer) { clearInterval(cleanupTimer); cleanupTimer = null }
-  if (flushTimer) { clearInterval(flushTimer); flushTimer = null }
   document.removeEventListener('visibilitychange', onVisibility)
 }
 
-function reset() { store.alerts.clear(); store.recent = []; uiBuffer.length = 0; clearKey.value++ }
+function reset() { store.alerts.clear(); store.recent = []; store.alertVersion++; clearKey.value++ }
 
 export function useAlertStore() {
   return {

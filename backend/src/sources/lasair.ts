@@ -24,8 +24,8 @@ function mapLasairToAlert(raw: Record<string, unknown>): Alert | null {
 
     const alert: Alert = {
       alertId,
-      ra: Number(cand.ra ?? raw.ra ?? 0),
-      dec: Number(cand.dec ?? raw.dec ?? 0),
+      ra: Number(cand.ra ?? raw.ra ?? raw.ramean ?? 0),
+      dec: Number(cand.dec ?? raw.dec ?? raw.decmean ?? 0),
       magnitude: Number(cand.magpsf ?? cand.magnr ?? raw.gmag ?? raw.rmag ?? raw.magnitude ?? 99),
       type: (raw['predicted classification'] ?? raw.classification ?? raw.type ?? 'Unknown') as AlertType,
       redshift: Number(raw.redshift ?? cand.distnr ?? 0),

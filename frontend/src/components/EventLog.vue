@@ -28,7 +28,8 @@ const icons: Record<string, string> = {
         class="grid grid-cols-[auto_auto_1fr_auto_auto_auto] gap-x-2 py-0.5 rounded px-1 cursor-pointer"
         :class="store.hoveredId === a.alertId ? 'bg-gray-700' : 'hover:bg-gray-800'"
         @mouseenter="store.setHovered(a.alertId)"
-        @mouseleave="store.setHovered(null)">
+        @mouseleave="store.setHovered(null)"
+        @click="store.selectAlert(a.alertId)">
         <span class="text-gray-500 w-10 tabular-nums">{{ timeAgo(a.timestamp) }}</span>
         <span>{{ icons[a.type] || '⚪' }}</span>
         <span class="truncate text-gray-300">{{ a.type }}</span>

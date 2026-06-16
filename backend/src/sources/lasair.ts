@@ -43,6 +43,7 @@ export function createLasairSource(config: {
   broker: string
   topic: string
   apiKey: string
+  onCrash?: () => void
 }): AlertSource {
   let consumer: ReturnType<Kafka['consumer']> | null = null
   let running = false
@@ -60,6 +61,12 @@ export function createLasairSource(config: {
       running = true
       const groupId = 'alert-sound-mapping-lasair-' + new Date().toISOString().slice(0, 10)
       consumer = kafka.consumer({ groupId })
+      consumer.on('consumer.crash', ({ payload: { error } }: any) => {
+        console.error(`[LasairSource] consumer crashed:`, error?.message || error)
+        running = false
+        consumer = null
+        config.onCrash?.()
+      })
       await consumer.connect()
       await consumer.subscribe({ topic: config.topic, fromBeginning: true })
       await consumer.run({

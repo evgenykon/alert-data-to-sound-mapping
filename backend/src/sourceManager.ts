@@ -39,6 +39,11 @@ export async function startSource(type: AlertSourceType, customConfig?: Record<s
       broker: cfg.broker as string || process.env.LASAIR_BROKER || 'lasair-ztf-kafka.lsst.ac.uk:9092',
       topic: cfg.topic as string || process.env.LASAIR_TOPIC || 'lasair_ztf',
       apiKey: cfg.apiKey as string || process.env.LASAIR_API_KEY || '',
+      onCrash: () => {
+        console.log('[sourceManager] lasair source crashed, falling back to demo')
+        currentSource = null
+        startSource('demo')
+      },
     })
     try {
       await currentSource.start(emit)

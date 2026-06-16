@@ -59,7 +59,7 @@ export function createKafkaSource(config: {
                 alertId,
                 ra: Number(parsed.ra ?? 0),
                 dec: Number(parsed.dec ?? 0),
-                magnitude: Number(parsed.magnitude ?? 99),
+                magnitude: Number(parsed.gmag ?? parsed.magnitude ?? 99),
                 type: (parsed.type ?? 'Unknown') as AlertType,
                 redshift: Number(parsed.redshift ?? 0),
                 riseTime: Number(parsed.riseTime ?? 0),

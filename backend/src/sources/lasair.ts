@@ -68,7 +68,7 @@ export function createLasairSource(config: {
         config.onCrash?.()
       })
       await consumer.connect()
-      await consumer.subscribe({ topic: config.topic, fromBeginning: true })
+      await consumer.subscribe({ topic: config.topic, fromBeginning: false })
       await consumer.run({
         eachMessage: async ({ message }) => {
           if (!running || !onAlert || !message.value) return

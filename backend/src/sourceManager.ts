@@ -40,9 +40,9 @@ export async function startSource(type: AlertSourceType, customConfig?: Record<s
       topic: cfg.topic as string || process.env.LASAIR_TOPIC || 'lasair_ztf',
       apiKey: cfg.apiKey as string || process.env.LASAIR_API_KEY || '',
       onCrash: () => {
-        console.log('[sourceManager] lasair source crashed, falling back to demo')
+        console.log(`[sourceManager] lasair crashed, retrying in 10s`)
         currentSource = null
-        startSource('demo')
+        setTimeout(() => startSource('lasair', customConfig), 10000)
       },
     })
     try {
@@ -50,8 +50,9 @@ export async function startSource(type: AlertSourceType, customConfig?: Record<s
       console.log(`[sourceManager] lasair source started`)
     } catch (err) {
       console.error(`[sourceManager] lasair source failed to start:`, err)
-      console.log(`[sourceManager] falling back to demo source`)
-      await startSource('demo')
+      console.log(`[sourceManager] retrying lasair in 10s`)
+      currentSource = null
+      setTimeout(() => startSource('lasair', customConfig), 10000)
     }
   } else {
     console.error('Unknown source type:', type)

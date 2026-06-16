@@ -16,7 +16,8 @@ function timeAgo(ts: number): string {
 const icons: Record<string, string> = {
   'RR Lyrae': '🔴', 'Cepheid': '🟡', 'Mira': '🟠', 'LPV': '🟠', 'AGN': '🔵',
   'QSO': '🔵', 'SN Ia': '💥', 'SN Ib': '💥', 'SN Ic': '💥', 'SN II': '💥',
-  'Kilonova': '⭐', 'TDE': '💜', 'Unknown': '⚪',
+  'Kilonova': '⭐', 'TDE': '💜', 'VS': '🟢', 'ORPHAN': '🟣', 'CV': '🟡',
+  'EB': '🟢', 'YSO': '🟠', 'Unknown': '⚪',
 }
 </script>
 

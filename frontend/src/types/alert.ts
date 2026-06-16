@@ -1,6 +1,7 @@
 export type AlertType =
   | 'RR Lyrae' | 'Cepheid' | 'Mira' | 'LPV' | 'AGN' | 'QSO'
-  | 'SN Ia' | 'SN Ib' | 'SN Ic' | 'SN II' | 'Kilonova' | 'TDE' | 'Unknown'
+  | 'SN Ia' | 'SN Ib' | 'SN Ic' | 'SN II' | 'Kilonova' | 'TDE'
+  | 'VS' | 'ORPHAN' | 'CV' | 'EB' | 'YSO' | 'Unknown'
 
 export interface Alert {
   alertId: string; ra: number; dec: number; magnitude: number

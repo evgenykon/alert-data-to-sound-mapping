@@ -5,13 +5,16 @@ import type { AlertType } from '~/types/alert'
 const sonification = useSonification()
 const allTypes: AlertType[] = [
   'RR Lyrae', 'Cepheid', 'Mira', 'LPV', 'AGN', 'QSO',
-  'SN Ia', 'SN Ib', 'SN Ic', 'SN II', 'Kilonova', 'TDE', 'Unknown',
+  'SN Ia', 'SN Ib', 'SN Ic', 'SN II', 'Kilonova', 'TDE',
+  'VS', 'ORPHAN', 'CV', 'EB', 'YSO', 'Unknown',
 ]
 const colors: Record<string, string> = {
   'RR Lyrae': 'text-yellow-400', 'Cepheid': 'text-yellow-300', 'Mira': 'text-orange-400',
   'LPV': 'text-orange-300', 'AGN': 'text-blue-400', 'QSO': 'text-blue-300',
   'SN Ia': 'text-red-400', 'SN Ib': 'text-red-400', 'SN Ic': 'text-red-400',
-  'SN II': 'text-red-300', 'Kilonova': 'text-purple-400', 'TDE': 'text-pink-400', 'Unknown': 'text-gray-400',
+  'SN II': 'text-red-300', 'Kilonova': 'text-purple-400', 'TDE': 'text-pink-400',
+  'VS': 'text-emerald-400', 'ORPHAN': 'text-violet-400', 'CV': 'text-amber-400',
+  'EB': 'text-emerald-300', 'YSO': 'text-orange-300', 'Unknown': 'text-gray-400',
 }
 </script>
 

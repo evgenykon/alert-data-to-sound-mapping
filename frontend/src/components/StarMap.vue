@@ -27,7 +27,9 @@ const crosshair = computed(() => {
 const typeColors: Record<string, string> = {
   'RR Lyrae': '#facc15', 'Cepheid': '#fde047', 'Mira': '#fb923c', 'LPV': '#fdba74',
   'AGN': '#60a5fa', 'QSO': '#93c5fd', 'SN Ia': '#f87171', 'SN Ib': '#f87171',
-  'SN Ic': '#f87171', 'SN II': '#fca5a5', 'Kilonova': '#c084fc', 'TDE': '#f472b6', 'Unknown': '#9ca3af',
+  'SN Ic': '#f87171', 'SN II': '#fca5a5', 'Kilonova': '#c084fc', 'TDE': '#f472b6',
+  'VS': '#6ee7b7', 'ORPHAN': '#a78bfa', 'CV': '#fbbf24', 'EB': '#34d399', 'YSO': '#fb923c',
+  'Unknown': '#9ca3af',
 }
 
 function magToR(mag: number) { return Math.max(2, Math.min(8, (22 - mag) * 0.8)) }

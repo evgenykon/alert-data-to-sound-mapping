@@ -20,7 +20,8 @@ function addAlert(alert: Alert) {
   const state: AlertState = { ...alert, status: 'sounding', opacity: 1 }
   store.alerts.set(alert.alertId, state)
   store.alertVersion++
-  uiBuffer.push(state)
+  store.recent.unshift(state)
+  if (store.recent.length > 500) store.recent.length = 500
 }
 
 function flushUI() {

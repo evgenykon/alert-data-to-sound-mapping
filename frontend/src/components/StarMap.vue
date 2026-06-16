@@ -36,7 +36,7 @@ function drawGraticule() {
   svg.selectAll('g.graticule > *').remove()
   const g = svg.select('g.graticule')
 
-  g.append('rect').attr('width', mapW).attr('height', mapH).attr('fill', '#030712').style('cursor', 'pointer')
+  g.append('rect').attr('width', mapW).attr('height', mapH).attr('fill', '#030712').style('cursor', 'default')
     .on('click', () => store.clearSelection())
 
   // Outer boundary
@@ -115,7 +115,7 @@ watch(() => store.clearKey.value, () => {
 })
 
 // Dirty flag when alerts change
-watch(() => store.alerts.size, () => { mapDirty = true })
+watch(() => store.alertVersion, () => { mapDirty = true })
 
 onMounted(() => {
   svg = d3.select(svgRef.value!)

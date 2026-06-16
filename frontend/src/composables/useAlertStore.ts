@@ -11,6 +11,7 @@ const store = reactive({
   recent: [] as AlertState[],
   hoveredId: null as string | null,
   selectedId: null as string | null,
+  alertVersion: 0,
 })
 
 const uiBuffer: AlertState[] = []
@@ -18,6 +19,7 @@ const uiBuffer: AlertState[] = []
 function addAlert(alert: Alert) {
   const state: AlertState = { ...alert, status: 'sounding', opacity: 1 }
   store.alerts.set(alert.alertId, state)
+  store.alertVersion++
   uiBuffer.push(state)
 }
 
@@ -81,7 +83,7 @@ function reset() { store.alerts.clear(); store.recent = []; uiBuffer.length = 0;
 export function useAlertStore() {
   return {
     alerts: store.alerts, get recentAlerts() { return store.recent }, get hoveredId() { return store.hoveredId }, get selectedId() { return store.selectedId },
-    clearKey, logKeep, flushIntervalMs, targetRate: _globalRate,
+    clearKey, get alertVersion() { return store.alertVersion }, logKeep, flushIntervalMs, targetRate: _globalRate,
     setLogKeep: (s: number) => { logKeep.value = s * 1000 },
     setFlushInterval: (ms: number) => { flushIntervalMs.value = ms },
     addAlert, markDecaying,

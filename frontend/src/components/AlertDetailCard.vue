@@ -44,6 +44,10 @@ const typeColors: Record<string, string> = {
   'AGN': '#60a5fa', 'QSO': '#93c5fd', 'SN Ia': '#f87171', 'SN Ib': '#f87171',
   'SN Ic': '#f87171', 'SN II': '#fca5a5', 'Kilonova': '#c084fc', 'TDE': '#f472b6', 'Unknown': '#9ca3af',
 }
+
+function openObjectPage(id: string) {
+  window.open(`https://lasair-ztf.lsst.ac.uk/objects/${id}/`, '_blank')
+}
 </script>
 
 <template>
@@ -61,49 +65,49 @@ const typeColors: Record<string, string> = {
       <div class="field-row">
         <span class="field-label">RA</span>
         <span class="field-val">{{ raHms(alert.ra) }}</span>
-        <span class="field-hint">прямое восхождение</span>
+        <span class="field-hint">right ascension</span>
       </div>
       <div class="field-row">
         <span class="field-label">Dec</span>
         <span class="field-val">{{ decDms(alert.dec) }}</span>
-        <span class="field-hint">склонение</span>
+        <span class="field-hint">declination</span>
       </div>
       <div class="field-row">
         <span class="field-label">mag</span>
         <span class="field-val">{{ alert.magnitude.toFixed(2) }}</span>
-        <span class="field-hint">видимая звёздная величина</span>
+        <span class="field-hint">apparent magnitude</span>
       </div>
       <div class="field-row">
         <span class="field-label">z</span>
         <span class="field-val">{{ alert.redshift.toFixed(4) }}</span>
-        <span class="field-hint">красное смещение</span>
+        <span class="field-hint">redshift</span>
       </div>
       <div class="field-row">
         <span class="field-label">rise</span>
         <span class="field-val">{{ alert.riseTime.toFixed(2) }}s</span>
-        <span class="field-hint">время нарастания</span>
+        <span class="field-hint">rise time</span>
       </div>
       <div class="field-row">
         <span class="field-label">score</span>
         <span class="field-val">{{ alert.score.toFixed(3) }}</span>
-        <span class="field-hint">приоритет (0–1)</span>
+        <span class="field-hint">priority (0–1)</span>
       </div>
       <div class="field-row">
         <span class="field-label">con</span>
         <span class="field-val">{{ getConstellation(alert.ra, alert.dec) || '—' }}</span>
-        <span class="field-hint">созвездие</span>
+        <span class="field-hint">constellation</span>
       </div>
 
       <div class="divider"></div>
 
       <div class="field-row">
         <span class="field-label">ID</span>
-        <span class="field-val mono text-xs">{{ alert.alertId }}</span>
+        <span class="field-val mono text-xs link" @click="openObjectPage(alert.alertId)">{{ alert.alertId }}</span>
       </div>
       <div class="field-row">
         <span class="field-label">time</span>
         <span class="field-val text-xs">{{ fmtTime(alert.timestamp) }}</span>
-        <span class="field-hint">{{ age(alert.timestamp) }} назад</span>
+        <span class="field-hint">{{ age(alert.timestamp) }}</span>
       </div>
       <div class="field-row" v-if="'status' in alert">
         <span class="field-label">status</span>
@@ -176,6 +180,9 @@ const typeColors: Record<string, string> = {
   color: #e5e7eb;
   border-color: #6b7280;
 }
+
+.link { cursor: pointer; }
+.link:hover { text-decoration: underline; color: #60a5fa; }
 
 .card-body {
   padding: 8px 10px;

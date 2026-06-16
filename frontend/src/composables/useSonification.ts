@@ -37,7 +37,10 @@ function shouldPlay(alert: Alert): boolean {
   return true
 }
 
+const KNOWN_TYPES = new Set(['RR Lyrae', 'Cepheid', 'Mira', 'LPV', 'AGN', 'QSO', 'SN Ia', 'SN Ib', 'SN Ic', 'SN II', 'Kilonova', 'TDE', 'Unknown'])
+
 export function processAlert(alert: Alert) {
+  if (!KNOWN_TYPES.has(alert.type)) (alert as unknown as Record<string, string>).type = 'Unknown'
   if (!shouldPlay(alert)) return
   const bm = useBenchmark()
   const store = useAlertStore()

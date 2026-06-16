@@ -10,7 +10,7 @@ export interface Alert {
 export type AlertStatus = 'sounding' | 'decaying'
 
 export interface AlertState extends Alert {
-  status: AlertStatus; opacity: number
+  status: AlertStatus; opacity: number; receivedAt: number
 }
 
 export type SonificationStrategy = 'aggregate' | 'score-filter' | 'sampling' | 'grains' | 'rate-limit'

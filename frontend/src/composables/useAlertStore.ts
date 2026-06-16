@@ -15,7 +15,7 @@ const store = reactive({
 })
 
 function addAlert(alert: Alert) {
-  const state: AlertState = { ...alert, status: 'sounding', opacity: 1 }
+  const state: AlertState = { ...alert, status: 'sounding', opacity: 1, receivedAt: Date.now() }
   store.alerts.set(alert.alertId, state)
   store.alertVersion++
   store.recent.unshift(state)
@@ -32,18 +32,17 @@ function cleanup() {
   const displayMs = r < 10 ? 60000 : r < 50 ? 10000 : 3000
   const cutoff = Date.now() - Math.max(displayMs, 5000)
   for (const [id, a] of store.alerts) {
-    const ts = a.timestamp * 1000
-    if (ts < cutoff) { store.alerts.delete(id); store.alertVersion++ }
-    else if (a.status === 'decaying') { a.opacity = Math.max(0, 1 - (Date.now() - ts) / displayMs) }
+    if (a.receivedAt < cutoff) { store.alerts.delete(id); store.alertVersion++ }
+    else if (a.status === 'decaying') { a.opacity = Math.max(0, 1 - (Date.now() - a.receivedAt) / displayMs) }
   }
   const maxPoints = Math.max(50, Math.min(300, Math.round(r * 3)))
   if (store.alerts.size > maxPoints) {
-    const sorted = Array.from(store.alerts.entries()).sort((a, b) => a[1].timestamp - b[1].timestamp)
+    const sorted = Array.from(store.alerts.entries()).sort((a, b) => a[1].receivedAt - b[1].receivedAt)
     for (const [id] of sorted.slice(0, sorted.length - maxPoints)) { store.alerts.delete(id); store.alertVersion++ }
   }
   const logCutoff = Date.now() - logKeep.value
   for (let i = store.recent.length - 1; i >= 0; i--) {
-    if (store.recent[i].timestamp * 1000 < logCutoff) store.recent.splice(i, 1)
+    if (store.recent[i].receivedAt < logCutoff) store.recent.splice(i, 1)
   }
 }
 
@@ -53,18 +52,18 @@ export function getGlobalRate(): number { return _globalRate.value }
 
 let cleanupTimer: ReturnType<typeof setInterval> | null = null
 
+function startCleanup() {
+  stopCleanup()
+  if (!document.hidden) cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
+  document.addEventListener('visibilitychange', onVisibility)
+}
+
 function onVisibility() {
   if (document.hidden) {
     if (cleanupTimer) { clearInterval(cleanupTimer); cleanupTimer = null }
-  } else {
+  } else if (!cleanupTimer) {
     cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
   }
-}
-
-function startCleanup() {
-  stopCleanup()
-  cleanupTimer = setInterval(cleanup, CLEANUP_INTERVAL)
-  document.addEventListener('visibilitychange', onVisibility)
 }
 
 function stopCleanup() {

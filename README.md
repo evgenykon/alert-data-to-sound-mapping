@@ -16,6 +16,8 @@ Web Audio API + Vue 3 + D3.js + Kafka.
 Transforms a stream of astronomical alerts into real-time multi-channel spatial audio.
 [Full documentation](docs/plan.md) (Russian)
 
+![Screenshot](docs/screenshot.png)
+
 ## Quick Start
 
 ```bash

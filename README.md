@@ -14,7 +14,8 @@ Browser-based sonification of live alerts from the Vera C. Rubin Observatory (LS
 Web Audio API + Vue 3 + D3.js + Kafka.
 
 Transforms a stream of astronomical alerts into real-time multi-channel spatial audio.
-[Full documentation](docs/plan.md) (Russian)
+[Full documentation](docs/schemas.md) (Russian)
+[Alert types](docs/alert-types.md) — 18 astronomical object classes, metadata, sound palette mapping
 
 ![Screenshot](docs/screenshot.png)
 
